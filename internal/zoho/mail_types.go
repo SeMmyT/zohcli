@@ -1,5 +1,7 @@
 package zoho
 
+import "encoding/json"
+
 // MailAccount represents a Zoho Mail account
 type MailAccount struct {
 	AccountID          string `json:"accountId"`
@@ -173,4 +175,68 @@ type SendEmailResponse struct {
 		Code        int    `json:"code"`
 		Description string `json:"description"`
 	} `json:"status"`
+}
+
+// Signature represents an email signature
+type Signature struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Content     string `json:"content"`
+	Position    int    `json:"position"`    // 0=below quoted, 1=above quoted
+	AssignUsers string `json:"assignUsers,omitempty"` // comma-separated emails
+}
+
+// SignatureListResponse is the response for list signatures
+type SignatureListResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data []Signature `json:"data"`
+}
+
+// SignatureCreateResponse is the response for create signature
+type SignatureCreateResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"data"`
+}
+
+// VacationReply represents vacation auto-reply settings
+type VacationReply struct {
+	FromDate   string `json:"fromDate"`   // MM/DD/YYYY HH:MM:SS
+	ToDate     string `json:"toDate"`     // MM/DD/YYYY HH:MM:SS
+	SendingInt int    `json:"sendingInt"` // reply interval in minutes
+	Subject    string `json:"subject"`
+	Content    string `json:"content"`
+	SendTo     string `json:"sendTo"` // "all"/"contacts"/"noncontacts"/"org"/"nonOrgAll"
+}
+
+// AccountDetails represents account details including vacation and forwarding settings
+type AccountDetails struct {
+	AccountDisplayName string          `json:"accountDisplayName"`
+	EmailAddress       string          `json:"emailAddress"`
+	VacationResponse   json.RawMessage `json:"vacationResponse,omitempty"` // for GET
+	ForwardDetails     json.RawMessage `json:"forwardDetails,omitempty"`   // for GET
+}
+
+// AccountDetailsResponse is the response for get account details
+type AccountDetailsResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data AccountDetails `json:"data"`
+}
+
+// ForwardSettings represents email forwarding settings
+type ForwardSettings struct {
+	Enabled   bool   `json:"enabled"`
+	ForwardTo string `json:"forwardTo"`
+	KeepCopy  bool   `json:"keepCopy"`
 }
