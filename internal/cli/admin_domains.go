@@ -75,7 +75,13 @@ type AdminDomainsAddCmd struct {
 }
 
 // Run executes the add domain command
-func (cmd *AdminDomainsAddCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
+func (cmd *AdminDomainsAddCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would add domain: %s\n", cmd.Name)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -122,12 +128,7 @@ type AdminDomainsVerifyCmd struct {
 }
 
 // Run executes the verify domain command
-func (cmd *AdminDomainsVerifyCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	adminClient, err := newAdminClient(cfg)
-	if err != nil {
-		return err
-	}
-
+func (cmd *AdminDomainsVerifyCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
 	// Map user-friendly method names to API values
 	methodMap := map[string]string{
 		"txt":   "verifyDomainByTXT",
@@ -136,6 +137,17 @@ func (cmd *AdminDomainsVerifyCmd) Run(cfg *config.Config, fp *FormatterProvider)
 	}
 
 	apiMethod := methodMap[cmd.Method]
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would verify domain %s using method=%s\n", cmd.Name, cmd.Method)
+		return nil
+	}
+
+	adminClient, err := newAdminClient(cfg)
+	if err != nil {
+		return err
+	}
 
 	ctx := context.Background()
 
@@ -159,12 +171,7 @@ type AdminDomainsUpdateCmd struct {
 }
 
 // Run executes the update domain command
-func (cmd *AdminDomainsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	adminClient, err := newAdminClient(cfg)
-	if err != nil {
-		return err
-	}
-
+func (cmd *AdminDomainsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
 	// Map user-friendly setting names to API mode values
 	settingMap := map[string]string{
 		"enable-hosting":  "enableHosting",
@@ -175,6 +182,17 @@ func (cmd *AdminDomainsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider)
 	}
 
 	apiMode := settingMap[cmd.Setting]
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would update domain %s: mode=%s\n", cmd.Name, cmd.Setting)
+		return nil
+	}
+
+	adminClient, err := newAdminClient(cfg)
+	if err != nil {
+		return err
+	}
 
 	ctx := context.Background()
 

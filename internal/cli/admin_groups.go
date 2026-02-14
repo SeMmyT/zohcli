@@ -157,7 +157,13 @@ type AdminGroupsCreateCmd struct {
 }
 
 // Run executes the create group command
-func (cmd *AdminGroupsCreateCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
+func (cmd *AdminGroupsCreateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would create group: %s (email=%s)\n", cmd.Name, cmd.Email)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -199,18 +205,24 @@ type AdminGroupsUpdateCmd struct {
 }
 
 // Run executes the update group command
-func (cmd *AdminGroupsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	adminClient, err := newAdminClient(cfg)
-	if err != nil {
-		return err
-	}
-
+func (cmd *AdminGroupsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
 	// Require at least one field to update
 	if cmd.Name == "" && cmd.Description == "" {
 		return &output.CLIError{
 			Message:  "At least one of --name or --description is required",
 			ExitCode: output.ExitUsage,
 		}
+	}
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would update group %s: name=%s\n", cmd.Identifier, cmd.Name)
+		return nil
+	}
+
+	adminClient, err := newAdminClient(cfg)
+	if err != nil {
+		return err
 	}
 
 	// Resolve identifier to ZGID
@@ -240,11 +252,25 @@ func (cmd *AdminGroupsUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider) 
 // AdminGroupsDeleteCmd permanently deletes a group
 type AdminGroupsDeleteCmd struct {
 	Identifier string `arg:"" help:"Group ID (zgid) or group email address"`
-	Confirm    bool   `help:"Confirm permanent deletion (required)" required:""`
+	Confirm    bool   `help:"Confirm permanent deletion"`
 }
 
 // Run executes the delete group command
-func (cmd *AdminGroupsDeleteCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
+func (cmd *AdminGroupsDeleteCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Check confirmation requirement (unless --force or --dry-run)
+	if !cmd.Confirm && !globals.Force && !globals.DryRun {
+		return &output.CLIError{
+			Message:  "Deletion requires --confirm or --force flag",
+			ExitCode: output.ExitUsage,
+		}
+	}
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would permanently delete group: %s\n", cmd.Identifier)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -282,7 +308,13 @@ type AdminGroupsMembersAddCmd struct {
 }
 
 // Run executes the add group members command
-func (cmd *AdminGroupsMembersAddCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
+func (cmd *AdminGroupsMembersAddCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would add %d member(s) to group %s\n", len(cmd.Members), cmd.Group)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -328,7 +360,13 @@ type AdminGroupsMembersRemoveCmd struct {
 }
 
 // Run executes the remove group members command
-func (cmd *AdminGroupsMembersRemoveCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
+func (cmd *AdminGroupsMembersRemoveCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would remove %d member(s) from group %s\n", len(cmd.Members), cmd.Group)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err

@@ -168,6 +168,12 @@ type AdminUsersCreateCmd struct {
 
 // Run executes the create user command
 func (cmd *AdminUsersCreateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would create user: %s (firstName=%s, lastName=%s)\n", cmd.Email, cmd.FirstName, cmd.LastName)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -207,6 +213,12 @@ type AdminUsersUpdateCmd struct {
 
 // Run executes the update user command
 func (cmd *AdminUsersUpdateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would update user %s: role=%s\n", cmd.Identifier, cmd.Role)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -255,6 +267,12 @@ type AdminUsersActivateCmd struct {
 
 // Run executes the activate user command
 func (cmd *AdminUsersActivateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would activate user: %s\n", cmd.Identifier)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -305,6 +323,12 @@ type AdminUsersDeactivateCmd struct {
 
 // Run executes the deactivate user command
 func (cmd *AdminUsersDeactivateCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would deactivate user: %s\n", cmd.Identifier)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
@@ -355,11 +379,25 @@ func (cmd *AdminUsersDeactivateCmd) Run(cfg *config.Config, fp *FormatterProvide
 // AdminUsersDeleteCmd permanently deletes a user
 type AdminUsersDeleteCmd struct {
 	Identifier string `arg:"" help:"User ID (zuid) or email address"`
-	Confirm    bool   `help:"Confirm permanent deletion (required)" required:""`
+	Confirm    bool   `help:"Confirm permanent deletion"`
 }
 
 // Run executes the delete user command
 func (cmd *AdminUsersDeleteCmd) Run(cfg *config.Config, fp *FormatterProvider, globals *Globals) error {
+	// Check confirmation requirement (unless --force or --dry-run)
+	if !cmd.Confirm && !globals.Force && !globals.DryRun {
+		return &output.CLIError{
+			Message:  "Deletion requires --confirm or --force flag",
+			ExitCode: output.ExitUsage,
+		}
+	}
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would permanently delete user: %s\n", cmd.Identifier)
+		return nil
+	}
+
 	adminClient, err := newAdminClient(cfg)
 	if err != nil {
 		return err
