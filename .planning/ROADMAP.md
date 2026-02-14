@@ -48,12 +48,12 @@ Plans:
   3. User can list groups, view group details with members, and create/update/delete groups
   4. User can add and remove members from any group
   5. All admin commands produce correctly formatted output in all three modes (JSON, plain, rich)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Admin API client layer, pagination abstraction, and user list/get commands
-- [ ] 02-02: User create/update/activate/deactivate/delete commands
-- [ ] 02-03: Group management commands (list, get, create, update, delete, member add/remove)
+- [ ] 02-01-PLAN.md -- Admin API client layer (AdminClient, PageIterator, types) and user list/get commands
+- [ ] 02-02-PLAN.md -- User create/update/activate/deactivate/delete commands
+- [ ] 02-03-PLAN.md -- Group management commands (list, get, create, update, delete, member add/remove)
 
 ### Phase 3: Admin -- Domains & Audit
 **Goal**: Users can manage domains (including DNS verification) and access audit/security logs without touching the Zoho web console
