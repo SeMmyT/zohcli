@@ -18,6 +18,7 @@ type CLI struct {
 	Auth    AuthCmd    `cmd:"" help:"Authentication commands"`
 	Config  ConfigCmd  `cmd:"" help:"Configuration commands"`
 	Admin   AdminCmd   `cmd:"" help:"Admin operations"`
+	Mail    MailCmd    `cmd:"" help:"Mail operations"`
 	Version VersionCmd `cmd:"" help:"Show version information"`
 }
 
@@ -120,6 +121,29 @@ type AdminAuditCmd struct {
 	SMTPLogs     AdminAuditSMTPLogsCmd     `cmd:"smtp-logs" help:"View SMTP transaction logs"`
 	Sessions     AdminAuditSessionsCmd     `cmd:"" help:"View active sessions"`
 	Security     AdminAuditSecurityCmd     `cmd:"" help:"View security policy settings"`
+}
+
+// MailCmd holds mail subcommands
+type MailCmd struct {
+	Folders  MailFoldersCmd  `cmd:"" help:"Manage mail folders"`
+	Labels   MailLabelsCmd   `cmd:"" help:"Manage mail labels"`
+	Messages MailMessagesCmd `cmd:"" help:"Manage messages"`
+}
+
+// MailFoldersCmd holds folder subcommands
+type MailFoldersCmd struct {
+	List MailFoldersListCmd `cmd:"" help:"List all folders"`
+}
+
+// MailLabelsCmd holds label subcommands
+type MailLabelsCmd struct {
+	List MailLabelsListCmd `cmd:"" help:"List all labels"`
+}
+
+// MailMessagesCmd holds message subcommands
+type MailMessagesCmd struct {
+	List MailMessagesListCmd `cmd:"" help:"List messages in a folder"`
+	Get  MailMessagesGetCmd  `cmd:"" help:"Get full message details"`
 }
 
 // VersionCmd shows version information
