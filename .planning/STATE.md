@@ -10,34 +10,35 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Authentication)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-14 -- Completed 01-01 (CLI scaffold, config, output formatters)
+Last activity: 2026-02-14 -- Completed 01-02 (OAuth2 flows, keyring storage, token cache)
 
-Progress: [█░░░░░░░░░] 5.6% (1/18 plans)
+Progress: [█░░░░░░░░░] 11.1% (2/18 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 5 min
-- Total execution time: 5 min
+- Total plans completed: 2
+- Average duration: 4.5 min
+- Total execution time: 9 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 1/3 | 5 min | 5 min |
+| 01 | 2/3 | 9 min | 4.5 min |
 
 **Recent Executions:**
 
 | Phase-Plan | Duration | Tasks | Files | Date |
 |------------|----------|-------|-------|------|
+| 01-02 | 4 min | 2 | 8 | 2026-02-14 |
 | 01-01 | 5 min | 2 | 10 | 2026-02-14 |
 
 **Recent Trend:**
-- Last 5 plans: 5 min
-- Trend: First plan (baseline)
+- Last 2 plans: 4.5 min average
+- Trend: Consistent velocity
 
 ## Accumulated Context
 
@@ -52,6 +53,11 @@ Recent decisions affecting current work:
 - 01-01: Go 1.24 required for lipgloss v2 (auto-upgraded from 1.22)
 - 01-01: FormatterProvider wrapper for Kong interface binding (Kong can't bind interfaces directly)
 - 01-01: Empty region default resolves to 'us' in BeforeApply (CLI flag > config > us)
+- 01-02: 99designs/keyring for OS credential storage (macOS, Linux, Windows support)
+- 01-02: AES-256-GCM encrypted file fallback for WSL/headless (sha256 key derivation, future: scrypt/argon2)
+- 01-02: Zoho OAuth2 quirks: comma-separated scopes, access_type=offline, prompt=consent
+- 01-02: gofrs/flock for file-locked token cache (prevents concurrent refresh stampede)
+- 01-02: 5-minute proactive token refresh window (reduces auth errors during API calls)
 
 ### Pending Todos
 
@@ -64,7 +70,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-14T17:16:40Z
-Stopped at: Completed 01-01-PLAN.md (CLI scaffold with Kong, config, output formatters)
+Last session: 2026-02-14T17:23:56Z
+Stopped at: Completed 01-02-PLAN.md (OAuth2 flows, keyring storage, token cache)
 Resume file: None
-Next: Execute 01-02-PLAN.md (OAuth2 flows, keyring storage, token refresh)
+Next: Execute 01-03-PLAN.md (CLI command implementations: auth login/logout/status, config get/set/unset)
