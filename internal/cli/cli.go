@@ -21,6 +21,13 @@ type CLI struct {
 	Config  ConfigCmd  `cmd:"" help:"Configuration commands"`
 	Admin   AdminCmd   `cmd:"" help:"Admin operations"`
 	Mail    MailCmd    `cmd:"" help:"Mail operations"`
+
+	// Desire-path shortcuts
+	Send MailSendComposeCmd `cmd:"" help:"Send an email (shortcut for mail send compose)" hidden:""`
+	Ls   LsCmd              `cmd:"" help:"List resources (users, groups, folders, labels)" hidden:""`
+
+	// Introspection
+	Schema  SchemaCmd  `cmd:"" help:"Show machine-readable command tree as JSON"`
 	Version VersionCmd `cmd:"" help:"Show version information"`
 }
 
