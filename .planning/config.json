@@ -1,0 +1,20 @@
+{
+  "mode": "yolo",
+  "depth": "standard",
+  "parallelization": true,
+  "commit_docs": true,
+  "model_profile": "custom",
+  "models": {
+    "researcher": "opus",
+    "roadmapper": "opus",
+    "synthesizer": "sonnet",
+    "plan_checker": "sonnet",
+    "verifier": "sonnet",
+    "executor": "sonnet"
+  },
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true
+  }
+}
