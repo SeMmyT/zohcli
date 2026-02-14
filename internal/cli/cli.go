@@ -129,6 +129,7 @@ type MailCmd struct {
 	Labels      MailLabelsCmd      `cmd:"" help:"Manage mail labels"`
 	Messages    MailMessagesCmd    `cmd:"" help:"Manage messages"`
 	Attachments MailAttachmentsCmd `cmd:"" help:"Manage attachments"`
+	Send        MailSendCmd        `cmd:"" help:"Send email messages"`
 }
 
 // MailFoldersCmd holds folder subcommands
@@ -153,6 +154,13 @@ type MailMessagesCmd struct {
 type MailAttachmentsCmd struct {
 	List     MailAttachmentsListCmd     `cmd:"" help:"List attachments for a message"`
 	Download MailAttachmentsDownloadCmd `cmd:"" help:"Download an attachment"`
+}
+
+// MailSendCmd holds send subcommands
+type MailSendCmd struct {
+	Compose MailSendComposeCmd `cmd:"" help:"Compose and send a new email"`
+	Reply   MailSendReplyCmd   `cmd:"" help:"Reply to a message"`
+	Forward MailSendForwardCmd `cmd:"" help:"Forward a message"`
 }
 
 // VersionCmd shows version information
