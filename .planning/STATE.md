@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 ## Current Position
 
 Phase: 4 of 6 (Mail Read Operations)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase
 Status: Complete
-Last activity: 2026-02-14 -- Phase 4 Plan 1 complete (mail client infrastructure and read commands)
+Last activity: 2026-02-14 -- Phase 4 Plan 2 complete (message search, threads, and attachments)
 
-Progress: [█████░░░░░] 50.0% (9/18 plans)
+Progress: [█████░░░░░] 55.6% (10/18 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 4.7 min
-- Total execution time: 42 min
+- Total plans completed: 10
+- Average duration: 4.6 min
+- Total execution time: 46 min
 
 **By Phase:**
 
@@ -30,20 +30,20 @@ Progress: [█████░░░░░] 50.0% (9/18 plans)
 | 01 | 3/3 | 14 min | 4.7 min |
 | 02 | 3/3 | 15 min | 5.0 min |
 | 03 | 2/2 | 10 min | 5.0 min |
-| 04 | 1/2 | 3 min | 3.0 min |
+| 04 | 2/2 | 7 min | 3.5 min |
 
 **Recent Executions:**
 
 | Phase-Plan | Duration | Tasks | Files | Date |
 |------------|----------|-------|-------|------|
+| 04-02 | 4 min | 2 | 4 | 2026-02-14 |
 | 04-01 | 3 min | 2 | 5 | 2026-02-14 |
 | 03-01 | 5 min | 2 | 4 | 2026-02-14 |
 | 03-02 | 5 min | 2 | 5 | 2026-02-14 |
 | 02-02 | 8 min | 2 | 2 | 2026-02-14 |
-| 02-03 | 3 min | 2 | 4 | 2026-02-14 |
 
 **Recent Trend:**
-- Last 3 plans: 4.3 min average
+- Last 3 plans: 4.0 min average
 - Trend: Improving velocity
 
 ## Accumulated Context
@@ -90,6 +90,10 @@ Recent decisions affecting current work:
 - [Phase 04-01]: All mail requests use DoMail (MailBase URL) instead of Do (APIBase URL) - fundamental architectural difference from AdminClient
 - [Phase 04-01]: Display structs for timestamp formatting (unix ms to human-readable) - Column doesn't support Transform field
 - [Phase 04-01]: Three-tier message retrieval: GetMessageMetadata + GetMessageContent = complete view (two API calls)
+- [Phase 04-02]: SearchQuery builder uses method chaining for fluent API construction
+- [Phase 04-02]: GetThread uses client-side filtering with configurable scan limit (no dedicated API endpoint)
+- [Phase 04-02]: DownloadAttachment streams binary response with io.Copy (no memory buffering)
+- [Phase 04-02]: Auto-filename detection for downloads via ListAttachments lookup when --output-path not specified
 
 ### Pending Todos
 
@@ -103,7 +107,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-14T19:18:51Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-02-14T20:21:27Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
-Next: Phase 4 Plan 2 (message operations: move, delete, update, search)
+Next: Phase 5 Plan 1 (mail send operations)
