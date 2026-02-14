@@ -23,7 +23,24 @@ type MailSendComposeCmd struct {
 }
 
 // Run executes the compose command
-func (cmd *MailSendComposeCmd) Run(cfg *config.Config) error {
+func (cmd *MailSendComposeCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would send email:\n")
+		fmt.Fprintf(os.Stderr, "  To: %s\n", cmd.To)
+		if cmd.Cc != "" {
+			fmt.Fprintf(os.Stderr, "  Cc: %s\n", cmd.Cc)
+		}
+		if cmd.Bcc != "" {
+			fmt.Fprintf(os.Stderr, "  Bcc: %s\n", cmd.Bcc)
+		}
+		fmt.Fprintf(os.Stderr, "  Subject: %s\n", cmd.Subject)
+		if len(cmd.Attach) > 0 {
+			fmt.Fprintf(os.Stderr, "  Attachments: %d file(s)\n", len(cmd.Attach))
+		}
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err
@@ -86,7 +103,13 @@ type MailSendReplyCmd struct {
 }
 
 // Run executes the reply command
-func (cmd *MailSendReplyCmd) Run(cfg *config.Config) error {
+func (cmd *MailSendReplyCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would reply to message %s (reply-all=%v)\n", cmd.MessageID, cmd.All)
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err
@@ -183,7 +206,13 @@ type MailSendForwardCmd struct {
 }
 
 // Run executes the forward command
-func (cmd *MailSendForwardCmd) Run(cfg *config.Config) error {
+func (cmd *MailSendForwardCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would forward message %s to %s\n", cmd.MessageID, cmd.To)
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err

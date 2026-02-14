@@ -73,7 +73,13 @@ type MailSettingsSignaturesCreateCmd struct {
 }
 
 // Run executes the create signature command
-func (cmd *MailSettingsSignaturesCreateCmd) Run(cfg *config.Config) error {
+func (cmd *MailSettingsSignaturesCreateCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would create signature: name=%s\n", cmd.Name)
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err
@@ -149,7 +155,7 @@ type MailSettingsVacationSetCmd struct {
 }
 
 // Run executes the set vacation command
-func (cmd *MailSettingsVacationSetCmd) Run(cfg *config.Config) error {
+func (cmd *MailSettingsVacationSetCmd) Run(cfg *config.Config, globals *Globals) error {
 	// Validate date format
 	dateLayout := "01/02/2006 15:04:05"
 	if _, err := time.Parse(dateLayout, cmd.From); err != nil {
@@ -163,6 +169,12 @@ func (cmd *MailSettingsVacationSetCmd) Run(cfg *config.Config) error {
 			Message:  fmt.Sprintf("Invalid --to date format (expected MM/DD/YYYY HH:MM:SS): %v", err),
 			ExitCode: output.ExitUsage,
 		}
+	}
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would enable vacation reply: subject=%s\n", cmd.Subject)
+		return nil
 	}
 
 	mailClient, err := newMailClient(cfg)
@@ -196,7 +208,13 @@ func (cmd *MailSettingsVacationSetCmd) Run(cfg *config.Config) error {
 type MailSettingsVacationDisableCmd struct{}
 
 // Run executes the disable vacation command
-func (cmd *MailSettingsVacationDisableCmd) Run(cfg *config.Config) error {
+func (cmd *MailSettingsVacationDisableCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would disable vacation auto-reply\n")
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err
@@ -251,7 +269,13 @@ type MailSettingsDisplayNameSetCmd struct {
 }
 
 // Run executes the set display name command
-func (cmd *MailSettingsDisplayNameSetCmd) Run(cfg *config.Config) error {
+func (cmd *MailSettingsDisplayNameSetCmd) Run(cfg *config.Config, globals *Globals) error {
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would update display name to: %s\n", cmd.Name)
+		return nil
+	}
+
 	mailClient, err := newMailClient(cfg)
 	if err != nil {
 		return err

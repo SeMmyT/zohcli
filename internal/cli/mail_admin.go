@@ -172,7 +172,7 @@ type MailAdminSpamUpdateCmd struct {
 }
 
 // Run executes the update spam list command
-func (cmd *MailAdminSpamUpdateCmd) Run(cfg *config.Config) error {
+func (cmd *MailAdminSpamUpdateCmd) Run(cfg *config.Config, globals *Globals) error {
 	// Validate category
 	category, ok := zoho.SpamCategoryMap[cmd.Category]
 	if !ok {
@@ -187,6 +187,12 @@ func (cmd *MailAdminSpamUpdateCmd) Run(cfg *config.Config) error {
 			Message:  "At least one value must be provided",
 			ExitCode: output.ExitUsage,
 		}
+	}
+
+	// Dry-run preview
+	if globals.DryRun {
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would update %s: add %d address(es)\n", cmd.Category, len(cmd.Values))
+		return nil
 	}
 
 	mac, err := newMailAdminClient(cfg)
