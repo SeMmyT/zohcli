@@ -111,12 +111,12 @@ Plans:
   3. User can use `--dry-run` on any mutating command to preview what would happen without executing
   4. User can run `zoh schema [command]` to get a machine-readable command tree as JSON
   5. Shell completion works for bash, zsh, and fish
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Desire-path shortcuts and action-first command aliases
-- [ ] 06-02: Scripting flags (--results-only, --no-input, --force, --dry-run) and schema command
-- [ ] 06-03: Shell completion generation (bash, zsh, fish)
+- [ ] 06-01-PLAN.md -- Global scripting flags, results-only output, desire-path shortcuts, and schema command
+- [ ] 06-02-PLAN.md -- Dry-run preview and --force confirmation bypass for all mutating commands
+- [ ] 06-03-PLAN.md -- Shell completion generation (bash, zsh, fish) via kongplete
 
 ## Progress
 
