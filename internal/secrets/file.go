@@ -38,7 +38,7 @@ func NewFileStore(password string) (*FileStore, error) {
 		machineID := fmt.Sprintf("%s@%s", username, hostname)
 		hash := sha256.Sum256([]byte(machineID))
 		key = hash[:]
-		fmt.Fprintln(os.Stderr, "WARNING: Using machine-specific encryption key. For better security, set a password.")
+		warnOnce("WARNING: Using machine-specific encryption key. For better security, set a password via ZOH_STORE_PASSWORD env var.")
 	} else {
 		// Derive key from password using sha256 (simple for v1)
 		// TODO: Replace with scrypt or argon2 for better security
