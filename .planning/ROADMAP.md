@@ -12,7 +12,7 @@ This roadmap delivers a complete Go CLI for Zoho Admin and Mail operations acros
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Authentication** - Auth infrastructure, config, output formatting, and rate limiting that all commands depend on
+- [x] **Phase 1: Foundation & Authentication** - Auth infrastructure, config, output formatting, and rate limiting that all commands depend on (Completed: 2026-02-14)
 - [ ] **Phase 2: Admin -- Users & Groups** - Full user and group management, proving the API pipeline end-to-end
 - [ ] **Phase 3: Admin -- Domains & Audit** - Domain management with DNS verification, plus audit and security log access
 - [ ] **Phase 4: Mail -- Read Operations** - Read, search, and organize email from the terminal
@@ -34,9 +34,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Project scaffold, Kong CLI setup, config system, and output formatter framework
-- [ ] 01-02-PLAN.md -- OAuth2 authentication flows, keyring storage, token refresh, and file locking
-- [ ] 01-03-PLAN.md -- Region-aware HTTP client, rate limiter, auth commands (login/logout/list), and config commands
+- [x] 01-01-PLAN.md -- Project scaffold, Kong CLI setup, config system, and output formatter framework
+- [x] 01-02-PLAN.md -- OAuth2 authentication flows, keyring storage, token refresh, and file locking
+- [x] 01-03-PLAN.md -- Region-aware HTTP client, rate limiter, auth commands (login/logout/list), and config commands
 
 ### Phase 2: Admin -- Users & Groups
 **Goal**: Users can manage org users and groups entirely from the terminal, replacing the slow Zoho web UI for everyday admin tasks
