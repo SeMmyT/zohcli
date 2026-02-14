@@ -54,89 +54,18 @@ func (c *CLI) BeforeApply(ctx *kong.Context) error {
 
 // AuthCmd holds authentication subcommands
 type AuthCmd struct {
-	Login  LoginCmd  `cmd:"" help:"Log in to Zoho (placeholder for Plan 02)"`
-	Logout LogoutCmd `cmd:"" help:"Log out and remove credentials (placeholder for Plan 02)"`
-	List   ListCmd   `cmd:"" help:"List saved accounts (placeholder for Plan 02)"`
-}
-
-// LoginCmd placeholder
-type LoginCmd struct{}
-
-func (cmd *LoginCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("auth login not yet implemented (coming in Plan 02)")
-	return nil
-}
-
-// LogoutCmd placeholder
-type LogoutCmd struct{}
-
-func (cmd *LogoutCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("auth logout not yet implemented (coming in Plan 02)")
-	return nil
-}
-
-// ListCmd placeholder
-type ListCmd struct{}
-
-func (cmd *ListCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("auth list not yet implemented (coming in Plan 02)")
-	return nil
+	Login  AuthLoginCmd  `cmd:"" help:"Log in to Zoho account"`
+	Logout AuthLogoutCmd `cmd:"" help:"Log out and remove stored credentials"`
+	List   AuthListCmd   `cmd:"" help:"List stored accounts"`
 }
 
 // ConfigCmd holds configuration subcommands
 type ConfigCmd struct {
-	Get   GetCmd   `cmd:"" help:"Get config value (placeholder for Plan 03)"`
-	Set   SetCmd   `cmd:"" help:"Set config value (placeholder for Plan 03)"`
-	Unset UnsetCmd `cmd:"" help:"Unset config value (placeholder for Plan 03)"`
-	List  ListConfigCmd `cmd:"" name:"list" help:"List all config values (placeholder for Plan 03)"`
-	Path  PathCmd  `cmd:"" help:"Show config file path (placeholder for Plan 03)"`
-}
-
-// GetCmd placeholder
-type GetCmd struct {
-	Key string `arg:"" help:"Config key to get"`
-}
-
-func (cmd *GetCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("config get not yet implemented (coming in Plan 03)")
-	return nil
-}
-
-// SetCmd placeholder
-type SetCmd struct {
-	Key   string `arg:"" help:"Config key to set"`
-	Value string `arg:"" help:"Value to set"`
-}
-
-func (cmd *SetCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("config set not yet implemented (coming in Plan 03)")
-	return nil
-}
-
-// UnsetCmd placeholder
-type UnsetCmd struct {
-	Key string `arg:"" help:"Config key to unset"`
-}
-
-func (cmd *UnsetCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("config unset not yet implemented (coming in Plan 03)")
-	return nil
-}
-
-// ListConfigCmd placeholder
-type ListConfigCmd struct{}
-
-func (cmd *ListConfigCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("config list not yet implemented (coming in Plan 03)")
-	return nil
-}
-
-// PathCmd placeholder
-type PathCmd struct{}
-
-func (cmd *PathCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
-	fp.Formatter.PrintHint("config path not yet implemented (coming in Plan 03)")
-	return nil
+	Get   ConfigGetCmd        `cmd:"" help:"Get a configuration value"`
+	Set   ConfigSetCmd        `cmd:"" help:"Set a configuration value"`
+	Unset ConfigUnsetCmd      `cmd:"" help:"Remove a configuration value"`
+	List  ConfigListConfigCmd `cmd:"" name:"list" help:"List all configuration values"`
+	Path  ConfigPathCmd       `cmd:"" help:"Show config file path"`
 }
 
 // VersionCmd shows version information
