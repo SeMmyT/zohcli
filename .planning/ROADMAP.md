@@ -79,11 +79,11 @@ Plans:
   2. User can search messages by query (subject, sender, date range) and view threaded conversations
   3. User can list mail folders and labels/tags
   4. User can download attachments from a message to local disk
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: Mail API client layer, folder/label listing, and message list/get commands
-- [ ] 04-02: Message search, thread view, and attachment download
+- [ ] 04-01-PLAN.md -- Mail API client layer (MailClient, mail types), folder/label listing, and message list/get commands
+- [ ] 04-02-PLAN.md -- Search query builder, message search, thread view, and attachment list/download
 
 ### Phase 5: Mail -- Send, Settings & Admin
 **Goal**: Users can compose and send email (with attachments), manage mail settings, and administer mail policies from the terminal
@@ -129,6 +129,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation & Authentication | 3/3 | ✓ Complete | 2026-02-14 |
 | 2. Admin -- Users & Groups | 3/3 | ✓ Complete | 2026-02-14 |
 | 3. Admin -- Domains & Audit | 2/2 | ✓ Complete | 2026-02-14 |
-| 4. Mail -- Read Operations | 0/2 | Not started | - |
+| 4. Mail -- Read Operations | 0/2 | Planned | - |
 | 5. Mail -- Send, Settings & Admin | 0/3 | Not started | - |
 | 6. CLI Polish & Power User UX | 0/3 | Not started | - |
