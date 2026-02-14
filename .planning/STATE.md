@@ -10,39 +10,39 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 ## Current Position
 
 Phase: 2 of 6 (Admin User & Group Operations)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Complete
-Last activity: 2026-02-14 -- Completed 02-03 (Group management commands)
+Last activity: 2026-02-14 -- Completed 02-02 (User mutation commands)
 
-Progress: [██░░░░░░░░] 27.8% (5/18 plans)
+Progress: [███░░░░░░░] 33.3% (6/18 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 4.2 min
-- Total execution time: 21 min
+- Total plans completed: 6
+- Average duration: 5.0 min
+- Total execution time: 29 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 3/3 | 14 min | 4.7 min |
-| 02 | 2/5 | 7 min | 3.5 min |
+| 02 | 3/5 | 15 min | 5.0 min |
 
 **Recent Executions:**
 
 | Phase-Plan | Duration | Tasks | Files | Date |
 |------------|----------|-------|-------|------|
+| 02-02 | 8 min | 2 | 2 | 2026-02-14 |
 | 02-03 | 3 min | 2 | 4 | 2026-02-14 |
 | 02-01 | 4 min | 2 | 5 | 2026-02-14 |
 | 01-03 | 5 min | 2 | 5 | 2026-02-14 |
 | 01-02 | 4 min | 2 | 8 | 2026-02-14 |
-| 01-01 | 5 min | 2 | 10 | 2026-02-14 |
 
 **Recent Trend:**
-- Last 3 plans: 4.0 min average
-- Trend: Improving velocity
+- Last 3 plans: 5.0 min average
+- Trend: Stable velocity
 
 ## Accumulated Context
 
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase 02-01]: GetUserByEmail iterates all users — Zoho API lacks email-based lookup, PageIterator makes this efficient
 - [Phase 02-01]: newAdminClient helper in admin_users.go — Mirrors auth.go pattern (secrets store → token cache → client)
 - [Phase 02-01]: ZUID vs email auto-detection in CLI — Better UX, users can use "zoh admin users get 12345" or "user@example.com" without flags
+- [Phase 02-02]: resolveUserID returns both ZUID and User object — Commands need ZUID for API calls AND user email for confirmation messages, single lookup instead of two API calls
+- [Phase 02-02]: os.Stderr for confirmation messages — Matches pattern from admin_groups.go and configcmd.go, status messages to stderr, data to stdout
+- [Phase 02-02]: Delete requires --confirm flag — Deletion is permanent, prevent accidental data loss
 - [Phase 02-03]: Batch size of 50 for AddGroupMembers — Provides safety margin for Zoho API bulk operation limits while maintaining efficiency
 - [Phase 02-03]: ShowMembers default true in groups get — Members are core to group utility, better UX to show by default with opt-out flag
 - [Phase 02-03]: Required --confirm for group deletion — Kong's required flag ensures explicit user intent for permanent destructive action
@@ -84,7 +87,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-14T18:32:56Z
-Stopped at: Completed 02-03-PLAN.md (Group management commands)
+Last session: 2026-02-14T18:37:21Z
+Stopped at: Completed 02-02-PLAN.md (User mutation commands)
 Resume file: None
 Next: Continue Phase 2 with plan 02-04 or 02-05 (remaining admin operations)
