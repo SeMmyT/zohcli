@@ -210,7 +210,12 @@ func (ac *AdminClient) UpdateUserRole(ctx context.Context, zuid int64, newRole s
 		NewRole: newRole,
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, req)
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -232,7 +237,12 @@ func (ac *AdminClient) EnableUser(ctx context.Context, zuid int64) error {
 		ZUID: zuid,
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, req)
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -268,7 +278,12 @@ func (ac *AdminClient) DisableUser(ctx context.Context, zuid int64, opts Disable
 		reqBody["removeAlias"] = true
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -406,7 +421,7 @@ func (ac *AdminClient) CreateGroup(ctx context.Context, req CreateGroupRequest) 
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPost, path, body)
+	resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -448,7 +463,7 @@ func (ac *AdminClient) UpdateGroup(ctx context.Context, zgid int64, name, descri
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, body)
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -500,7 +515,7 @@ func (ac *AdminClient) AddGroupMembers(ctx context.Context, zgid int64, members 
 			return fmt.Errorf("marshal request: %w", err)
 		}
 
-		resp, err := ac.client.Do(ctx, http.MethodPut, path, body)
+		resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 		if err != nil {
 			return fmt.Errorf("request failed: %w", err)
 		}
@@ -528,7 +543,7 @@ func (ac *AdminClient) RemoveGroupMembers(ctx context.Context, zgid int64, membe
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, body)
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}

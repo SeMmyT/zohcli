@@ -71,13 +71,30 @@ type ConfigCmd struct {
 
 // AdminCmd holds admin subcommands
 type AdminCmd struct {
-	Users AdminUsersCmd `cmd:"" help:"User operations"`
+	Users  AdminUsersCmd  `cmd:"" help:"Manage organization users"`
+	Groups AdminGroupsCmd `cmd:"" help:"Manage organization groups"`
 }
 
 // AdminUsersCmd holds user subcommands
 type AdminUsersCmd struct {
 	List AdminUsersListCmd `cmd:"" help:"List organization users"`
 	Get  AdminUsersGetCmd  `cmd:"" help:"Get user details"`
+}
+
+// AdminGroupsCmd holds group subcommands
+type AdminGroupsCmd struct {
+	List    AdminGroupsListCmd    `cmd:"" help:"List organization groups"`
+	Get     AdminGroupsGetCmd     `cmd:"" help:"Get group details"`
+	Create  AdminGroupsCreateCmd  `cmd:"" help:"Create a new group"`
+	Update  AdminGroupsUpdateCmd  `cmd:"" help:"Update group settings"`
+	Delete  AdminGroupsDeleteCmd  `cmd:"" help:"Delete a group permanently"`
+	Members AdminGroupsMembersCmd `cmd:"" help:"Manage group members"`
+}
+
+// AdminGroupsMembersCmd holds group member management subcommands
+type AdminGroupsMembersCmd struct {
+	Add    AdminGroupsMembersAddCmd    `cmd:"" help:"Add members to a group"`
+	Remove AdminGroupsMembersRemoveCmd `cmd:"" help:"Remove members from a group"`
 }
 
 // VersionCmd shows version information
