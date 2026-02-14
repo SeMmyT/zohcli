@@ -64,11 +64,11 @@ Plans:
   2. User can add a new domain and see the required DNS records for verification
   3. User can view login audit logs and admin action logs filtered by date range
   4. User can list active sessions/devices for users and view security policy settings (2FA, password policies)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Domain management commands (list, get, add, verify, update settings)
-- [ ] 03-02: Audit and security commands (login logs, admin logs, sessions, security policies)
+- [ ] 03-01-PLAN.md -- Domain management commands (list, get, add, verify, update settings)
+- [ ] 03-02-PLAN.md -- Audit and security commands (audit logs, login history, SMTP logs, sessions, security policies)
 
 ### Phase 4: Mail -- Read Operations
 **Goal**: Users can read, search, and organize email entirely from the terminal
@@ -128,7 +128,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 3/3 | ✓ Complete | 2026-02-14 |
 | 2. Admin -- Users & Groups | 3/3 | ✓ Complete | 2026-02-14 |
-| 3. Admin -- Domains & Audit | 0/2 | Not started | - |
+| 3. Admin -- Domains & Audit | 0/2 | Planned | - |
 | 4. Mail -- Read Operations | 0/2 | Not started | - |
 | 5. Mail -- Send, Settings & Admin | 0/3 | Not started | - |
 | 6. CLI Polish & Power User UX | 0/3 | Not started | - |
