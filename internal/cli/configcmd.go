@@ -24,8 +24,8 @@ func (cmd *ConfigGetCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
 		}
 	}
 
-	// Print value to stdout
-	fmt.Println(value)
+	// Print value via formatter (respects --output flag)
+	fp.Formatter.Print(value)
 	return nil
 }
 
@@ -153,8 +153,8 @@ type ConfigPathCmd struct{}
 func (cmd *ConfigPathCmd) Run(cfg *config.Config, fp *FormatterProvider) error {
 	path := config.ConfigPath()
 
-	// Print path to stdout
-	fmt.Println(path)
+	// Print path via formatter (respects --output flag)
+	fp.Formatter.Print(path)
 
 	// Print existence hint to stderr
 	if _, err := os.Stat(path); os.IsNotExist(err) {
