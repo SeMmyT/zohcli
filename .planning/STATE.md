@@ -11,17 +11,17 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Phase: 3 of 6 (Admin -- Domains & Audit)
 Plan: 2 of 2 in current phase
-Status: In Progress
-Last activity: 2026-02-14 -- Completed plan 03-02 (audit logs and security commands)
+Status: Complete
+Last activity: 2026-02-14 -- Phase 3 complete (domain management and audit commands)
 
-Progress: [████░░░░░░] 38.9% (7/18 plans)
+Progress: [████░░░░░░] 44.4% (8/18 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 5.0 min
-- Total execution time: 34 min
+- Total plans completed: 8
+- Average duration: 4.9 min
+- Total execution time: 39 min
 
 **By Phase:**
 
@@ -29,20 +29,20 @@ Progress: [████░░░░░░] 38.9% (7/18 plans)
 |-------|-------|-------|----------|
 | 01 | 3/3 | 14 min | 4.7 min |
 | 02 | 3/3 | 15 min | 5.0 min |
-| 03 | 1/2 | 5 min | 5.0 min |
+| 03 | 2/2 | 10 min | 5.0 min |
 
 **Recent Executions:**
 
 | Phase-Plan | Duration | Tasks | Files | Date |
 |------------|----------|-------|-------|------|
+| 03-01 | 5 min | 2 | 4 | 2026-02-14 |
 | 03-02 | 5 min | 2 | 5 | 2026-02-14 |
 | 02-02 | 8 min | 2 | 2 | 2026-02-14 |
 | 02-03 | 3 min | 2 | 4 | 2026-02-14 |
 | 02-01 | 4 min | 2 | 5 | 2026-02-14 |
-| 01-03 | 5 min | 2 | 5 | 2026-02-14 |
 
 **Recent Trend:**
-- Last 3 plans: 5.3 min average
+- Last 3 plans: 6.0 min average
 - Trend: Stable velocity
 
 ## Accumulated Context
@@ -76,6 +76,11 @@ Recent decisions affecting current work:
 - [Phase 02-03]: Batch size of 50 for AddGroupMembers — Provides safety margin for Zoho API bulk operation limits while maintaining efficiency
 - [Phase 02-03]: ShowMembers default true in groups get — Members are core to group utility, better UX to show by default with opt-out flag
 - [Phase 02-03]: Required --confirm for group deletion — Kong's required flag ensures explicit user intent for permanent destructive action
+- [Phase 03-01]: Domain list does not use pagination — API returns all domains in single response (typical orgs have <10 domains)
+- [Phase 03-01]: Boolean fields display raw true/false values — output.Column doesn't support Transform field (planned feature not yet implemented)
+- [Phase 03-01]: User-friendly flag mappings — CLI flags (txt/cname/html, enable-hosting/etc) mapped to API mode values in command layer
+- [Phase 03-01]: Verification codes printed to stderr — Ensures users see critical DNS setup info regardless of output mode
+- [Phase 03-01]: Validation in AdminClient methods — Method/mode validation happens before API call for better error messages
 - [Phase 03-02]: Display structs for timestamp formatting — Column type doesn't support Transform field, pre-formatting is cleaner than reflection-based changes
 - [Phase 03-02]: 90-day validation in AdminClient — Login history API limitation, fail fast with clear error vs cryptic API response
 - [Phase 03-02]: Informational commands for sessions/security — No documented API endpoints, web console redirect provides better UX than "not implemented"
@@ -89,10 +94,11 @@ None yet.
 
 - Research flag (RESOLVED): Phase 2 research confirmed all admin ops use Zoho Mail API — no separate Directory API needed
 - Research flag: Phase 5 needs attachment upload testing -- sparse docs, Content-Type gotchas reported by community
+- Plan 03-02 runtime bug: AdminAuditSMTPLogsCmd.SearchBy enum panic ("enum value is only valid if it is either required or has a valid default value") — Kong validation issue, needs fix before audit commands are usable
 
 ## Session Continuity
 
-Last session: 2026-02-14T19:14:21Z
-Stopped at: Completed plan 03-02 (audit logs and security commands)
+Last session: 2026-02-14T19:15:17Z
+Stopped at: Completed Phase 3 (both plans: domain management and audit commands)
 Resume file: None
-Next: Verify plan 03-01 completion, then Phase 3 verification
+Next: Phase 3 complete. Ready for Phase 4 (Mail Read) or verify phase
