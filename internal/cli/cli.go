@@ -77,8 +77,13 @@ type AdminCmd struct {
 
 // AdminUsersCmd holds user subcommands
 type AdminUsersCmd struct {
-	List AdminUsersListCmd `cmd:"" help:"List organization users"`
-	Get  AdminUsersGetCmd  `cmd:"" help:"Get user details"`
+	List       AdminUsersListCmd       `cmd:"" help:"List organization users"`
+	Get        AdminUsersGetCmd        `cmd:"" help:"Get user details"`
+	Create     AdminUsersCreateCmd     `cmd:"" help:"Create a new user"`
+	Update     AdminUsersUpdateCmd     `cmd:"" help:"Update user role"`
+	Activate   AdminUsersActivateCmd   `cmd:"" help:"Activate a user account"`
+	Deactivate AdminUsersDeactivateCmd `cmd:"" help:"Deactivate a user account"`
+	Delete     AdminUsersDeleteCmd     `cmd:"" help:"Delete a user permanently"`
 }
 
 // AdminGroupsCmd holds group subcommands
