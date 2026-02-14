@@ -47,7 +47,7 @@ func NewAdminClient(cfg *config.Config, tokenSource oauth2.TokenSource) (*AdminC
 
 // getOrganizationID fetches the organization ID from the Zoho API
 func (ac *AdminClient) getOrganizationID(ctx context.Context) (int64, error) {
-	resp, err := ac.client.Do(ctx, http.MethodGet, "/api/organization/", nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, "/api/organization", nil)
 	if err != nil {
 		return 0, fmt.Errorf("request failed: %w", err)
 	}
@@ -72,7 +72,7 @@ func (ac *AdminClient) getOrganizationID(ctx context.Context) (int64, error) {
 // ListUsers fetches a list of users with pagination
 func (ac *AdminClient) ListUsers(ctx context.Context, start, limit int) ([]User, error) {
 	path := fmt.Sprintf("/api/organization/%d/accounts?start=%d&limit=%d", ac.zoid, start, limit)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -97,7 +97,7 @@ func (ac *AdminClient) ListUsers(ctx context.Context, start, limit int) ([]User,
 // GetUser fetches a single user by account ID
 func (ac *AdminClient) GetUser(ctx context.Context, accountID int64) (*User, error) {
 	path := fmt.Sprintf("/api/organization/%d/accounts/%d", ac.zoid, accountID)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -135,8 +135,14 @@ func (ac *AdminClient) GetUserByEmail(ctx context.Context, email string) (*User,
 
 	// Search for matching email
 	for _, user := range users {
-		if user.EmailAddress == email {
+		if user.PrimaryEmail() == email {
 			return &user, nil
+		}
+		// Also check all email addresses (aliases)
+		for _, ea := range user.EmailAddress {
+			if ea.MailID == email {
+				return &user, nil
+			}
 		}
 	}
 
@@ -180,7 +186,7 @@ func (ac *AdminClient) CreateUser(ctx context.Context, req CreateUserRequest) (*
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -217,7 +223,7 @@ func (ac *AdminClient) UpdateUserRole(ctx context.Context, zuid int64, newRole s
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -244,7 +250,7 @@ func (ac *AdminClient) EnableUser(ctx context.Context, zuid int64) error {
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -285,7 +291,7 @@ func (ac *AdminClient) DisableUser(ctx context.Context, zuid int64, opts Disable
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -302,7 +308,7 @@ func (ac *AdminClient) DisableUser(ctx context.Context, zuid int64, opts Disable
 func (ac *AdminClient) DeleteUser(ctx context.Context, zuid int64) error {
 	path := fmt.Sprintf("/api/organization/%d/accounts/%d", ac.zoid, zuid)
 
-	resp, err := ac.client.Do(ctx, http.MethodDelete, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -318,7 +324,7 @@ func (ac *AdminClient) DeleteUser(ctx context.Context, zuid int64) error {
 // ListGroups fetches a list of groups with pagination
 func (ac *AdminClient) ListGroups(ctx context.Context, start, limit int) ([]Group, error) {
 	path := fmt.Sprintf("/api/organization/%d/groups?start=%d&limit=%d", ac.zoid, start, limit)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -343,7 +349,7 @@ func (ac *AdminClient) ListGroups(ctx context.Context, start, limit int) ([]Grou
 // GetGroup fetches a single group by ZGID
 func (ac *AdminClient) GetGroup(ctx context.Context, zgid int64) (*Group, error) {
 	path := fmt.Sprintf("/api/organization/%d/groups/%d", ac.zoid, zgid)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -368,7 +374,7 @@ func (ac *AdminClient) GetGroup(ctx context.Context, zgid int64) (*Group, error)
 // GetGroupMembers fetches the member list for a group
 func (ac *AdminClient) GetGroupMembers(ctx context.Context, zgid int64) ([]GroupMember, error) {
 	path := fmt.Sprintf("/api/organization/%d/groups/%d/members", ac.zoid, zgid)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -423,7 +429,7 @@ func (ac *AdminClient) CreateGroup(ctx context.Context, req CreateGroupRequest) 
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -465,7 +471,7 @@ func (ac *AdminClient) UpdateGroup(ctx context.Context, zgid int64, name, descri
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -481,7 +487,7 @@ func (ac *AdminClient) UpdateGroup(ctx context.Context, zgid int64, name, descri
 // DeleteGroup permanently deletes a group
 func (ac *AdminClient) DeleteGroup(ctx context.Context, zgid int64) error {
 	path := fmt.Sprintf("/api/organization/%d/groups/%d", ac.zoid, zgid)
-	resp, err := ac.client.Do(ctx, http.MethodDelete, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -517,7 +523,7 @@ func (ac *AdminClient) AddGroupMembers(ctx context.Context, zgid int64, members 
 			return fmt.Errorf("marshal request: %w", err)
 		}
 
-		resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+		resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 		if err != nil {
 			return fmt.Errorf("request failed: %w", err)
 		}
@@ -545,7 +551,7 @@ func (ac *AdminClient) RemoveGroupMembers(ctx context.Context, zgid int64, membe
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -561,7 +567,7 @@ func (ac *AdminClient) RemoveGroupMembers(ctx context.Context, zgid int64, membe
 // ListDomains fetches all domains in the organization
 func (ac *AdminClient) ListDomains(ctx context.Context) ([]Domain, error) {
 	path := fmt.Sprintf("/api/organization/%d/domains", ac.zoid)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -586,7 +592,7 @@ func (ac *AdminClient) ListDomains(ctx context.Context) ([]Domain, error) {
 // GetDomain fetches details for a specific domain
 func (ac *AdminClient) GetDomain(ctx context.Context, domainName string) (*Domain, error) {
 	path := fmt.Sprintf("/api/organization/%d/domains/%s", ac.zoid, domainName)
-	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -621,7 +627,7 @@ func (ac *AdminClient) AddDomain(ctx context.Context, domainName string) (*Domai
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
@@ -666,7 +672,7 @@ func (ac *AdminClient) VerifyDomain(ctx context.Context, domainName, method stri
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -704,7 +710,7 @@ func (ac *AdminClient) UpdateDomainSettings(ctx context.Context, domainName, mod
 		return fmt.Errorf("marshal request: %w", err)
 	}
 
-	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
@@ -742,7 +748,7 @@ func (ac *AdminClient) GetAuditLogs(ctx context.Context, startTime, endTime time
 			path += "&lastIndexTime=" + url.QueryEscape(lastIndexTime)
 		}
 
-		resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+		resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 		if err != nil {
 			return nil, fmt.Errorf("request failed: %w", err)
 		}
@@ -802,7 +808,7 @@ func (ac *AdminClient) GetLoginHistory(ctx context.Context, mode string, startTi
 			path += "&scrollId=" + url.QueryEscape(scrollID)
 		}
 
-		resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+		resp, err := ac.client.DoMail(ctx, http.MethodGet, path, nil)
 		if err != nil {
 			return nil, fmt.Errorf("request failed: %w", err)
 		}
@@ -867,7 +873,7 @@ func (ac *AdminClient) GetSMTPLogs(ctx context.Context, startTime, endTime time.
 			return nil, fmt.Errorf("marshal request: %w", err)
 		}
 
-		resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+		resp, err := ac.client.DoMail(ctx, http.MethodPost, path, bytes.NewReader(body))
 		if err != nil {
 			return nil, fmt.Errorf("request failed: %w", err)
 		}

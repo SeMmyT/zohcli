@@ -90,16 +90,34 @@ func (cmd *AdminUsersListCmd) Run(cfg *config.Config, fp *FormatterProvider) err
 		}
 	}
 
-	// Define columns for list output
+	// Map to display structs (EmailAddress is an array in API response)
+	type UserDisplay struct {
+		Email         string `json:"email"`
+		DisplayName   string `json:"displayName"`
+		Role          string `json:"role"`
+		MailboxStatus string `json:"mailboxStatus"`
+		ZUID          string `json:"zuid"`
+	}
+	displayUsers := make([]UserDisplay, len(users))
+	for i, u := range users {
+		displayUsers[i] = UserDisplay{
+			Email:         u.PrimaryEmail(),
+			DisplayName:   u.DisplayName,
+			Role:          u.Role,
+			MailboxStatus: u.MailboxStatus,
+			ZUID:          strconv.FormatInt(u.ZUID, 10),
+		}
+	}
+
 	columns := []output.Column{
-		{Name: "Email", Key: "EmailAddress"},
+		{Name: "Email", Key: "Email"},
 		{Name: "Name", Key: "DisplayName"},
 		{Name: "Role", Key: "Role"},
 		{Name: "Status", Key: "MailboxStatus"},
 		{Name: "ZUID", Key: "ZUID"},
 	}
 
-	return fp.Formatter.PrintList(users, columns)
+	return fp.Formatter.PrintList(displayUsers, columns)
 }
 
 // AdminUsersGetCmd gets details for a specific user
@@ -200,7 +218,7 @@ func (cmd *AdminUsersCreateCmd) Run(cfg *config.Config, fp *FormatterProvider, g
 	}
 
 	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "User created: %s\n", user.EmailAddress)
+	fmt.Fprintf(os.Stderr, "User created: %s\n", user.PrimaryEmail())
 
 	return fp.Formatter.Print(user)
 }
@@ -298,7 +316,7 @@ func (cmd *AdminUsersActivateCmd) Run(cfg *config.Config, fp *FormatterProvider,
 	}
 
 	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "User activated: %s\n", user.EmailAddress)
+	fmt.Fprintf(os.Stderr, "User activated: %s\n", user.PrimaryEmail())
 
 	// Fetch updated user and print
 	updatedUser, err := adminClient.GetUser(ctx, zuid)
@@ -362,7 +380,7 @@ func (cmd *AdminUsersDeactivateCmd) Run(cfg *config.Config, fp *FormatterProvide
 	}
 
 	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "User deactivated: %s\n", user.EmailAddress)
+	fmt.Fprintf(os.Stderr, "User deactivated: %s\n", user.PrimaryEmail())
 
 	// Fetch updated user and print
 	updatedUser, err := adminClient.GetUser(ctx, zuid)
@@ -423,7 +441,7 @@ func (cmd *AdminUsersDeleteCmd) Run(cfg *config.Config, fp *FormatterProvider, g
 	}
 
 	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "User deleted permanently: %s\n", user.EmailAddress)
+	fmt.Fprintf(os.Stderr, "User deleted permanently: %s\n", user.PrimaryEmail())
 
 	return nil
 }

@@ -14,22 +14,48 @@ type OrgResponse struct {
 	} `json:"data"`
 }
 
+// EmailAddress represents a Zoho user email address entry
+type EmailAddress struct {
+	MailID    string `json:"mailId"`
+	IsAlias   bool   `json:"isAlias"`
+	IsPrimary bool   `json:"isPrimary"`
+}
+
 // User represents a Zoho user account
+// Field types verified against official Zoho docs:
+// https://www.zoho.com/mail/help/api/get-org-users-details.html
 type User struct {
-	ZUID              int64  `json:"zuid"`
-	AccountID         int64  `json:"accountId"`
-	EmailAddress      string `json:"emailAddress"`
-	FirstName         string `json:"firstName"`
-	LastName          string `json:"lastName"`
-	DisplayName       string `json:"displayName"`
-	Role              string `json:"role"`
-	MailboxStatus     string `json:"mailboxStatus"`
-	UsedStorage       int64  `json:"usedStorage"`
-	PlanStorage       int64  `json:"planStorage"`
-	TFAEnabled        bool   `json:"tfaEnabled"`
-	IMAPAccessEnabled bool   `json:"imapAccessEnabled"`
-	POPAccessEnabled  bool   `json:"popAccessEnabled"`
-	LastLogin         int64  `json:"lastLogin"` // Unix timestamp
+	ZUID              int64          `json:"zuid"`
+	AccountID         string         `json:"accountId"` // Zoho returns this as a quoted string
+	EmailAddress      []EmailAddress `json:"emailAddress"`
+	PrimaryEmailID    string         `json:"primaryEmailAddress"`
+	FirstName         string         `json:"firstName"`
+	LastName          string         `json:"lastName"`
+	DisplayName       string         `json:"displayName"`
+	Role              string         `json:"role"`
+	MailboxStatus     string         `json:"mailboxStatus"`
+	UsedStorage       int64          `json:"usedStorage"`
+	PlanStorage       int64          `json:"planStorage"`
+	TFAEnabled        bool           `json:"tfaEnabled"`
+	IMAPAccessEnabled bool           `json:"imapAccessEnabled"`
+	POPAccessEnabled  bool           `json:"popAccessEnabled"`
+	LastLogin         int64          `json:"lastLogin"` // Unix timestamp in milliseconds
+}
+
+// PrimaryEmail returns the primary email address string for the user
+func (u *User) PrimaryEmail() string {
+	if u.PrimaryEmailID != "" {
+		return u.PrimaryEmailID
+	}
+	for _, ea := range u.EmailAddress {
+		if ea.IsPrimary {
+			return ea.MailID
+		}
+	}
+	if len(u.EmailAddress) > 0 {
+		return u.EmailAddress[0].MailID
+	}
+	return ""
 }
 
 // UserListResponse is the response from GET /api/organization/{zoid}/accounts
