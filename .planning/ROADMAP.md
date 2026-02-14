@@ -94,12 +94,12 @@ Plans:
   2. User can reply, reply-all, and forward messages, with optional file attachments
   3. User can view and update email signatures, vacation auto-reply, display name/aliases, and forwarding settings
   4. User can view and update retention policies, spam filter settings, allowlists/blocklists, and delivery logs
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Send email commands (compose, reply, forward) with attachment support
-- [ ] 05-02: Mail settings commands (signatures, vacation, display name, forwarding)
-- [ ] 05-03: Mail admin commands (retention, spam, allowlists/blocklists, delivery logs)
+- [ ] 05-01-PLAN.md -- Send email operations (compose, reply, forward) with two-step attachment upload
+- [ ] 05-02-PLAN.md -- Mail settings commands (signatures, vacation auto-reply, display name, forwarding)
+- [ ] 05-03-PLAN.md -- Mail admin commands (retention policies, spam allowlists/blocklists, delivery logs)
 
 ### Phase 6: CLI Polish & Power User UX
 **Goal**: Power users get shortcuts, scripting flags, and shell integration that make zoh fast and composable in pipelines
