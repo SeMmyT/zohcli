@@ -31,12 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can manage configuration via `zoh config get/set/list/path` and config is stored in XDG-compliant location
   4. All commands produce correct output in JSON, plain, and rich modes (data to stdout, errors/hints to stderr) with documented exit codes
   5. Concurrent CLI invocations do not corrupt token state, and API calls respect the 30 req/min rate limit with automatic backoff
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Project scaffold, Kong CLI setup, config system, and output formatter framework
-- [ ] 01-02: OAuth2 authentication flows, keyring storage, token refresh, and file locking
-- [ ] 01-03: Region-aware HTTP client, rate limiter, auth commands (login/logout/list), and config commands
+- [ ] 01-01-PLAN.md -- Project scaffold, Kong CLI setup, config system, and output formatter framework
+- [ ] 01-02-PLAN.md -- OAuth2 authentication flows, keyring storage, token refresh, and file locking
+- [ ] 01-03-PLAN.md -- Region-aware HTTP client, rate limiter, auth commands (login/logout/list), and config commands
 
 ### Phase 2: Admin -- Users & Groups
 **Goal**: Users can manage org users and groups entirely from the terminal, replacing the slow Zoho web UI for everyday admin tasks
@@ -126,7 +126,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 0/3 | Not started | - |
+| 1. Foundation & Authentication | 0/3 | Planned | - |
 | 2. Admin -- Users & Groups | 0/3 | Not started | - |
 | 3. Admin -- Domains & Audit | 0/2 | Not started | - |
 | 4. Mail -- Read Operations | 0/2 | Not started | - |
