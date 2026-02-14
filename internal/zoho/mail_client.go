@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -229,4 +231,145 @@ func (mc *MailClient) GetMessageContent(ctx context.Context, folderID, messageID
 	}
 
 	return &contentResp.Data, nil
+}
+
+// SearchMessages searches messages using Zoho search syntax
+func (mc *MailClient) SearchMessages(ctx context.Context, searchKey string, start, limit int) ([]MessageSummary, error) {
+	path := fmt.Sprintf("/api/accounts/%s/messages/search?searchKey=%s&start=%d&limit=%d",
+		mc.accountID, url.QueryEscape(searchKey), start, limit)
+	resp, err := mc.client.DoMail(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, mc.parseErrorResponse(resp)
+	}
+
+	var messageResp MessageListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&messageResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if messageResp.Status.Code != 200 {
+		return nil, fmt.Errorf("API error: %s (code %d)", messageResp.Status.Description, messageResp.Status.Code)
+	}
+
+	return messageResp.Data, nil
+}
+
+// GetThread fetches all messages in a thread by filtering folder messages
+func (mc *MailClient) GetThread(ctx context.Context, folderID, threadID string, limit int) ([]MessageSummary, error) {
+	if limit == 0 {
+		limit = 200 // Default scan limit
+	}
+
+	var matchingMessages []MessageSummary
+	scanned := 0
+	start := 0
+	pageSize := 200 // Max messages per API call
+
+	for scanned < limit {
+		// Calculate how many messages to fetch in this iteration
+		remaining := limit - scanned
+		fetchSize := pageSize
+		if remaining < pageSize {
+			fetchSize = remaining
+		}
+
+		messages, err := mc.ListMessages(ctx, folderID, start, fetchSize)
+		if err != nil {
+			return nil, err
+		}
+
+		// No more messages in folder
+		if len(messages) == 0 {
+			break
+		}
+
+		// Filter by thread ID
+		for _, msg := range messages {
+			if msg.ThreadID == threadID {
+				matchingMessages = append(matchingMessages, msg)
+			}
+		}
+
+		scanned += len(messages)
+		start += len(messages)
+
+		// If we got fewer messages than requested, we've reached the end
+		if len(messages) < fetchSize {
+			break
+		}
+	}
+
+	if len(matchingMessages) == 0 {
+		return nil, fmt.Errorf("no messages found for thread ID: %s", threadID)
+	}
+
+	return matchingMessages, nil
+}
+
+// ListAttachments fetches all attachments for a message
+func (mc *MailClient) ListAttachments(ctx context.Context, folderID, messageID string) ([]Attachment, error) {
+	path := fmt.Sprintf("/api/accounts/%s/folders/%s/messages/%s/attachments",
+		mc.accountID, folderID, messageID)
+	resp, err := mc.client.DoMail(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, mc.parseErrorResponse(resp)
+	}
+
+	var attachmentResp AttachmentListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&attachmentResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if attachmentResp.Status.Code != 200 {
+		return nil, fmt.Errorf("API error: %s (code %d)", attachmentResp.Status.Description, attachmentResp.Status.Code)
+	}
+
+	return attachmentResp.Data, nil
+}
+
+// DownloadAttachment downloads an attachment to a file
+func (mc *MailClient) DownloadAttachment(ctx context.Context, folderID, messageID, attachmentID, destPath string) error {
+	path := fmt.Sprintf("/api/accounts/%s/folders/%s/messages/%s/attachments/%s",
+		mc.accountID, folderID, messageID, attachmentID)
+	resp, err := mc.client.DoMail(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return mc.parseErrorResponse(resp)
+	}
+
+	// Create destination file
+	file, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("create file %s: %w", destPath, err)
+	}
+
+	// Stream response to file
+	_, err = io.Copy(file, resp.Body)
+	closeErr := file.Close()
+
+	if err != nil {
+		// Best-effort cleanup of partial download
+		os.Remove(destPath)
+		return fmt.Errorf("download failed: %w", err)
+	}
+
+	if closeErr != nil {
+		return fmt.Errorf("close file: %w", closeErr)
+	}
+
+	return nil
 }
