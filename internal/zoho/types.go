@@ -160,6 +160,138 @@ type DisableUserOpts struct {
 	RemoveAlias           bool `json:"removeAlias,omitempty"`
 }
 
+// Domain represents a domain in the organization
+type Domain struct {
+	DomainName            string `json:"domainName"`
+	DomainID              string `json:"domainId"`
+	VerificationStatus    bool   `json:"verificationStatus"`
+	DKIMStatus            bool   `json:"dkimstatus"`
+	SPFStatus             bool   `json:"spfstatus"`
+	MXStatus              string `json:"mxstatus"`
+	VerifiedDate          int64  `json:"verifiedDate"` // Unix milliseconds
+	MailHostingEnabled    bool   `json:"mailHostingEnabled"`
+	IsDomainAlias         bool   `json:"isDomainAlias"`
+	IsExpired             bool   `json:"isExpired"`
+	Primary               bool   `json:"primary"`
+	CNAMEVerificationCode string `json:"CNAMEVerificationCode"`
+	HTMLVerificationCode  string `json:"HTMLVerificationCode"`
+	TXTVerificationCode   string `json:"txtRecord"` // TXT record value for DNS verification
+}
+
+// DKIM represents DKIM settings for a domain
+type DKIM struct {
+	Selector   string `json:"selector"`
+	DomainName string `json:"domainName"`
+	TXTRecord  string `json:"txtRecord"`
+	Status     bool   `json:"status"`
+}
+
+// DomainListResponse is the response from GET /api/organization/{zoid}/domains
+type DomainListResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data []Domain `json:"data"`
+}
+
+// DomainDetailResponse is the response from GET /api/organization/{zoid}/domains/{domainName}
+type DomainDetailResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data Domain `json:"data"`
+}
+
+// AddDomainRequest is the request body for POST /api/organization/{zoid}/domains
+type AddDomainRequest struct {
+	DomainName string `json:"domainName"`
+}
+
+// DomainModeRequest is the request body for domain mode operations
+type DomainModeRequest struct {
+	Mode string `json:"mode"`
+}
+
+// AuditLog represents an admin action audit log entry
+type AuditLog struct {
+	SubCategory   string                 `json:"subCategory"`
+	Data          map[string]interface{} `json:"data"`
+	Type          string                 `json:"type"`
+	RequestTime   int64                  `json:"requestTime"` // Unix milliseconds
+	PerformedBy   string                 `json:"performedBy"`
+	AuditLogType  string                 `json:"auditLogType"`
+	ClientIP      string                 `json:"clientIp"`
+	MainCategory  string                 `json:"mainCategory"`
+	OperationType string                 `json:"operationType"`
+	PerformedOn   string                 `json:"performedOn"`
+	Category      string                 `json:"category"`
+	Operation     string                 `json:"operation"`
+}
+
+// AuditLogResponse is the response from GET /api/organization/{zoid}/activity
+type AuditLogResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data struct {
+		Audit         []AuditLog `json:"audit"`
+		LastIndexTime string     `json:"lastIndexTime"`
+		LastEntityID  string     `json:"lastEntityId"`
+	} `json:"data"`
+}
+
+// LoginHistoryEntry represents a login history log entry
+type LoginHistoryEntry struct {
+	UserID       int64  `json:"userId"`
+	EmailAddress string `json:"emailAddress"`
+	IPAddress    string `json:"ipAddress"`
+	LoginTime    int64  `json:"loginTime"` // Unix milliseconds
+	Status       string `json:"status"`
+	AccessType   string `json:"accessType"`
+	ClientInfo   string `json:"clientInfo"`
+}
+
+// LoginHistoryResponse is the response from GET /api/organization/{zoid}/accounts/reports/loginHistory
+type LoginHistoryResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data struct {
+		LoginHistory []LoginHistoryEntry `json:"loginHistory"`
+		ScrollID     string              `json:"scrollId"`
+	} `json:"data"`
+}
+
+// SMTPLogEntry represents an SMTP transaction log entry
+type SMTPLogEntry struct {
+	MessageID     string   `json:"messageId"`
+	FromAddress   string   `json:"fromAddr"`
+	ToAddresses   []string `json:"toAddr"`
+	Subject       string   `json:"subject"`
+	TransactionID string   `json:"transactionId"`
+	Timestamp     int64    `json:"timestamp"` // Unix milliseconds
+	Status        string   `json:"status"`
+}
+
+// SMTPLogResponse is the response from POST /api/organization/{zoid}/smtplogs
+type SMTPLogResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data struct {
+		HasNext      bool           `json:"hnxt"`
+		HasPrevious  bool           `json:"hasPrevious"`
+		PageKey      string         `json:"pagekey"`
+		PagePrevKey  string         `json:"pagePrevKey"`
+		Response     []SMTPLogEntry `json:"response"`
+	} `json:"data"`
+}
+
 // APIError represents an error response from the Zoho API
 type APIError struct {
 	Status struct {

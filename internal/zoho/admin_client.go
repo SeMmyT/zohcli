@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"time"
 
 	"golang.org/x/oauth2"
 
@@ -554,4 +556,348 @@ func (ac *AdminClient) RemoveGroupMembers(ctx context.Context, zgid int64, membe
 	}
 
 	return nil
+}
+
+// ListDomains fetches all domains in the organization
+func (ac *AdminClient) ListDomains(ctx context.Context) ([]Domain, error) {
+	path := fmt.Sprintf("/api/organization/%d/domains", ac.zoid)
+	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, ac.parseErrorResponse(resp)
+	}
+
+	var domainResp DomainListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&domainResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if domainResp.Status.Code != 200 {
+		return nil, fmt.Errorf("API error: %s (code %d)", domainResp.Status.Description, domainResp.Status.Code)
+	}
+
+	return domainResp.Data, nil
+}
+
+// GetDomain fetches details for a specific domain
+func (ac *AdminClient) GetDomain(ctx context.Context, domainName string) (*Domain, error) {
+	path := fmt.Sprintf("/api/organization/%d/domains/%s", ac.zoid, domainName)
+	resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, ac.parseErrorResponse(resp)
+	}
+
+	var domainResp DomainDetailResponse
+	if err := json.NewDecoder(resp.Body).Decode(&domainResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if domainResp.Status.Code != 200 {
+		return nil, fmt.Errorf("API error: %s (code %d)", domainResp.Status.Description, domainResp.Status.Code)
+	}
+
+	return &domainResp.Data, nil
+}
+
+// AddDomain adds a new domain to the organization
+func (ac *AdminClient) AddDomain(ctx context.Context, domainName string) (*Domain, error) {
+	path := fmt.Sprintf("/api/organization/%d/domains", ac.zoid)
+
+	req := AddDomainRequest{
+		DomainName: domainName,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, ac.parseErrorResponse(resp)
+	}
+
+	var domainResp DomainDetailResponse
+	if err := json.NewDecoder(resp.Body).Decode(&domainResp); err != nil {
+		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	if domainResp.Status.Code != 200 {
+		return nil, fmt.Errorf("API error: %s (code %d)", domainResp.Status.Description, domainResp.Status.Code)
+	}
+
+	return &domainResp.Data, nil
+}
+
+// VerifyDomain verifies domain ownership using the specified method
+func (ac *AdminClient) VerifyDomain(ctx context.Context, domainName, method string) error {
+	// Validate method
+	validMethods := map[string]bool{
+		"verifyDomainByTXT":   true,
+		"verifyDomainByCName": true,
+		"verifyDomainByHTML":  true,
+	}
+	if !validMethods[method] {
+		return fmt.Errorf("invalid verification method: %s (must be verifyDomainByTXT, verifyDomainByCName, or verifyDomainByHTML)", method)
+	}
+
+	path := fmt.Sprintf("/api/organization/%d/domains/%s", ac.zoid, domainName)
+
+	req := DomainModeRequest{
+		Mode: method,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ac.parseErrorResponse(resp)
+	}
+
+	return nil
+}
+
+// UpdateDomainSettings updates domain settings using the specified mode
+func (ac *AdminClient) UpdateDomainSettings(ctx context.Context, domainName, mode string) error {
+	// Validate mode
+	validModes := map[string]bool{
+		"enableHosting":  true,
+		"disableHosting": true,
+		"setPrimary":     true,
+		"enableDkim":     true,
+		"disableDkim":    true,
+	}
+	if !validModes[mode] {
+		return fmt.Errorf("invalid mode: %s (must be enableHosting, disableHosting, setPrimary, enableDkim, or disableDkim)", mode)
+	}
+
+	path := fmt.Sprintf("/api/organization/%d/domains/%s", ac.zoid, domainName)
+
+	req := DomainModeRequest{
+		Mode: mode,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.Do(ctx, http.MethodPut, path, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ac.parseErrorResponse(resp)
+	}
+
+	return nil
+}
+
+// GetAuditLogs fetches admin action audit logs with cursor pagination
+func (ac *AdminClient) GetAuditLogs(ctx context.Context, startTime, endTime time.Time, searchKey string, limit int) ([]AuditLog, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+
+	var allLogs []AuditLog
+	lastEntityID := ""
+	lastIndexTime := ""
+
+	for {
+		// Build query parameters
+		path := fmt.Sprintf("/api/organization/%d/activity?startTime=%d&endTime=%d&limit=%d",
+			ac.zoid, startTime.UnixMilli(), endTime.UnixMilli(), limit)
+
+		if searchKey != "" {
+			path += "&searchKey=" + url.QueryEscape(searchKey)
+		}
+
+		// Add cursor parameters for pagination
+		if lastEntityID != "" {
+			path += "&lastEntityId=" + url.QueryEscape(lastEntityID)
+			path += "&lastIndexTime=" + url.QueryEscape(lastIndexTime)
+		}
+
+		resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+		if err != nil {
+			return nil, fmt.Errorf("request failed: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, ac.parseErrorResponse(resp)
+		}
+
+		var auditResp AuditLogResponse
+		if err := json.NewDecoder(resp.Body).Decode(&auditResp); err != nil {
+			return nil, fmt.Errorf("decode response: %w", err)
+		}
+
+		if auditResp.Status.Code != 200 {
+			return nil, fmt.Errorf("API error: %s (code %d)", auditResp.Status.Description, auditResp.Status.Code)
+		}
+
+		// Append logs from this page
+		allLogs = append(allLogs, auditResp.Data.Audit...)
+
+		// Check if there are more pages
+		if auditResp.Data.LastEntityID == "" || len(auditResp.Data.Audit) == 0 {
+			break
+		}
+
+		// Update cursor for next request
+		lastEntityID = auditResp.Data.LastEntityID
+		lastIndexTime = auditResp.Data.LastIndexTime
+	}
+
+	return allLogs, nil
+}
+
+// GetLoginHistory fetches login history logs with scroll-based pagination
+func (ac *AdminClient) GetLoginHistory(ctx context.Context, mode string, startTime, endTime time.Time, batchSize int) ([]LoginHistoryEntry, error) {
+	// Validate 90-day retention limit
+	ninetyDaysAgo := time.Now().AddDate(0, 0, -90)
+	if startTime.Before(ninetyDaysAgo) {
+		return nil, fmt.Errorf("login history only available for last 90 days")
+	}
+
+	if batchSize <= 0 {
+		batchSize = 100
+	}
+
+	var allEntries []LoginHistoryEntry
+	scrollID := ""
+
+	for {
+		// Build query parameters
+		path := fmt.Sprintf("/api/organization/%d/accounts/reports/loginHistory?mode=%s&fromTime=%d&toTime=%d&batchSize=%d",
+			ac.zoid, mode, startTime.UnixMilli(), endTime.UnixMilli(), batchSize)
+
+		// Add scroll ID for pagination
+		if scrollID != "" {
+			path += "&scrollId=" + url.QueryEscape(scrollID)
+		}
+
+		resp, err := ac.client.Do(ctx, http.MethodGet, path, nil)
+		if err != nil {
+			return nil, fmt.Errorf("request failed: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, ac.parseErrorResponse(resp)
+		}
+
+		var loginResp LoginHistoryResponse
+		if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+			return nil, fmt.Errorf("decode response: %w", err)
+		}
+
+		if loginResp.Status.Code != 200 {
+			return nil, fmt.Errorf("API error: %s (code %d)", loginResp.Status.Description, loginResp.Status.Code)
+		}
+
+		// Append entries from this page
+		allEntries = append(allEntries, loginResp.Data.LoginHistory...)
+
+		// Check if there are more pages
+		if loginResp.Data.ScrollID == "" || len(loginResp.Data.LoginHistory) == 0 {
+			break
+		}
+
+		// Update scroll ID for next request
+		scrollID = loginResp.Data.ScrollID
+	}
+
+	return allEntries, nil
+}
+
+// GetSMTPLogs fetches SMTP transaction logs with forward pagination
+func (ac *AdminClient) GetSMTPLogs(ctx context.Context, startTime, endTime time.Time, searchCriteria, searchKey string, limit int) ([]SMTPLogEntry, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+
+	path := fmt.Sprintf("/api/organization/%d/smtplogs", ac.zoid)
+
+	var allEntries []SMTPLogEntry
+	isNext := false
+	pageKey := ""
+
+	for {
+		// Build request body
+		reqBody := map[string]interface{}{
+			"fromDateTime":   startTime.UnixMilli(),
+			"toDateTime":     endTime.UnixMilli(),
+			"searchCriteria": searchCriteria,
+			"searchKey":      searchKey,
+			"limit":          limit,
+			"isNext":         isNext,
+			"isPrevious":     false,
+			"pageKey":        pageKey,
+			"prevKey":        "",
+		}
+
+		body, err := json.Marshal(reqBody)
+		if err != nil {
+			return nil, fmt.Errorf("marshal request: %w", err)
+		}
+
+		resp, err := ac.client.Do(ctx, http.MethodPost, path, bytes.NewReader(body))
+		if err != nil {
+			return nil, fmt.Errorf("request failed: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, ac.parseErrorResponse(resp)
+		}
+
+		var smtpResp SMTPLogResponse
+		if err := json.NewDecoder(resp.Body).Decode(&smtpResp); err != nil {
+			return nil, fmt.Errorf("decode response: %w", err)
+		}
+
+		if smtpResp.Status.Code != 200 {
+			return nil, fmt.Errorf("API error: %s (code %d)", smtpResp.Status.Description, smtpResp.Status.Code)
+		}
+
+		// Append entries from this page
+		allEntries = append(allEntries, smtpResp.Data.Response...)
+
+		// Check if there are more pages
+		if !smtpResp.Data.HasNext || len(smtpResp.Data.Response) == 0 {
+			break
+		}
+
+		// Update pagination parameters for next request
+		isNext = true
+		pageKey = smtpResp.Data.PageKey
+	}
+
+	return allEntries, nil
 }
