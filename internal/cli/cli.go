@@ -131,6 +131,7 @@ type MailCmd struct {
 	Attachments MailAttachmentsCmd `cmd:"" help:"Manage attachments"`
 	Send        MailSendCmd        `cmd:"" help:"Send email messages"`
 	Settings    MailSettingsCmd    `cmd:"" help:"Manage mail settings"`
+	Admin       MailAdminCmd       `cmd:"" help:"Mail administration operations"`
 }
 
 // MailFoldersCmd holds folder subcommands
@@ -194,6 +195,25 @@ type MailSettingsDisplayNameCmd struct {
 // MailSettingsForwardingCmd holds forwarding subcommands
 type MailSettingsForwardingCmd struct {
 	Get MailSettingsForwardingGetCmd `cmd:"" help:"View forwarding settings"`
+}
+
+// MailAdminCmd holds mail admin subcommands
+type MailAdminCmd struct {
+	Retention MailAdminRetentionCmd `cmd:"" help:"Manage retention policies"`
+	Spam      MailAdminSpamCmd      `cmd:"" help:"Manage spam filter settings"`
+	Logs      MailAdminLogsCmd      `cmd:"" help:"View delivery logs"`
+}
+
+// MailAdminRetentionCmd holds retention policy subcommands
+type MailAdminRetentionCmd struct {
+	Get MailAdminRetentionGetCmd `cmd:"" help:"View retention policy settings"`
+}
+
+// MailAdminSpamCmd holds spam filter subcommands
+type MailAdminSpamCmd struct {
+	Get        MailAdminSpamGetCmd        `cmd:"" help:"View spam settings for a category"`
+	Update     MailAdminSpamUpdateCmd     `cmd:"" help:"Update spam allowlist/blocklist"`
+	Categories MailAdminSpamCategoriesCmd `cmd:"" help:"List available spam categories"`
 }
 
 // VersionCmd shows version information
