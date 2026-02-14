@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 ## Current Position
 
-Phase: 4 of 6 (Mail Read Operations)
-Plan: 2 of 2 in current phase
+Phase: 5 of 6 (Mail Send, Settings, Admin)
+Plan: 1 of 3 in current phase
 Status: Complete
-Last activity: 2026-02-14 -- Phase 4 Plan 2 complete (message search, threads, and attachments)
+Last activity: 2026-02-14 -- Phase 5 Plan 1 complete (mail send operations)
 
-Progress: [█████░░░░░] 55.6% (10/18 plans)
+Progress: [██████░░░░] 61.1% (11/18 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 4.6 min
-- Total execution time: 46 min
+- Total plans completed: 11
+- Average duration: 4.4 min
+- Total execution time: 48 min
 
 **By Phase:**
 
@@ -31,19 +31,20 @@ Progress: [█████░░░░░] 55.6% (10/18 plans)
 | 02 | 3/3 | 15 min | 5.0 min |
 | 03 | 2/2 | 10 min | 5.0 min |
 | 04 | 2/2 | 7 min | 3.5 min |
+| 05 | 1/3 | 2 min | 2.0 min |
 
 **Recent Executions:**
 
 | Phase-Plan | Duration | Tasks | Files | Date |
 |------------|----------|-------|-------|------|
+| 05-01 | 2 min | 2 | 4 | 2026-02-14 |
 | 04-02 | 4 min | 2 | 4 | 2026-02-14 |
 | 04-01 | 3 min | 2 | 5 | 2026-02-14 |
 | 03-01 | 5 min | 2 | 4 | 2026-02-14 |
 | 03-02 | 5 min | 2 | 5 | 2026-02-14 |
-| 02-02 | 8 min | 2 | 2 | 2026-02-14 |
 
 **Recent Trend:**
-- Last 3 plans: 4.0 min average
+- Last 3 plans: 3.0 min average
 - Trend: Improving velocity
 
 ## Accumulated Context
@@ -94,6 +95,10 @@ Recent decisions affecting current work:
 - [Phase 04-02]: GetThread uses client-side filtering with configurable scan limit (no dedicated API endpoint)
 - [Phase 04-02]: DownloadAttachment streams binary response with io.Copy (no memory buffering)
 - [Phase 04-02]: Auto-filename detection for downloads via ListAttachments lookup when --output-path not specified
+- [Phase 05-01]: Attachment upload uses application/octet-stream Content-Type (not multipart/form-data) - bypasses DoMail to avoid automatic JSON header
+- [Phase 05-01]: Two-step attachment workflow: upload first, get reference, include in send request
+- [Phase 05-01]: Action field in SendEmailRequest determines operation type (reply/replyall/forward)
+- [Phase 05-01]: Reply-all combines original ToAddress and CcAddress into new CcAddress field
 
 ### Pending Todos
 
@@ -102,12 +107,12 @@ None yet.
 ### Blockers/Concerns
 
 - Research flag (RESOLVED): Phase 2 research confirmed all admin ops use Zoho Mail API — no separate Directory API needed
-- Research flag: Phase 5 needs attachment upload testing -- sparse docs, Content-Type gotchas reported by community
+- Research flag (RESOLVED): Phase 5 attachment upload - confirmed application/octet-stream Content-Type works, not multipart/form-data
 - Plan 03-02 runtime bug: AdminAuditSMTPLogsCmd.SearchBy enum panic ("enum value is only valid if it is either required or has a valid default value") — Kong validation issue, needs fix before audit commands are usable
 
 ## Session Continuity
 
-Last session: 2026-02-14T20:21:27Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-02-14T20:44:49Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
-Next: Phase 5 Plan 1 (mail send operations)
+Next: Phase 5 Plan 2 (mail settings management)
