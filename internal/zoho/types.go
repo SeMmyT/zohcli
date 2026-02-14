@@ -106,6 +106,15 @@ type GroupMember struct {
 	ZUID          int64  `json:"zuid"`
 }
 
+// GroupMembersResponse is the response from GET /api/organization/{zoid}/groups/{zgid}/members
+type GroupMembersResponse struct {
+	Status struct {
+		Code        int    `json:"code"`
+		Description string `json:"description"`
+	} `json:"status"`
+	Data []GroupMember `json:"data"`
+}
+
 // CreateGroupRequest is the request body for POST /api/organization/{zoid}/groups
 type CreateGroupRequest struct {
 	GroupName         string   `json:"groupName"`
@@ -141,6 +150,14 @@ type GroupMemberToRemove struct {
 // DeleteConfirmation is the request body for delete operations
 type DeleteConfirmation struct {
 	Mode string `json:"mode"` // "deleteUser" or similar
+}
+
+// DisableUserOpts contains options for disabling a user
+type DisableUserOpts struct {
+	BlockIncoming         bool `json:"blockIncoming,omitempty"`
+	RemoveMailForward     bool `json:"removeMailForward,omitempty"`
+	RemoveGroupMembership bool `json:"removeGroupMembership,omitempty"`
+	RemoveAlias           bool `json:"removeAlias,omitempty"`
 }
 
 // APIError represents an error response from the Zoho API
