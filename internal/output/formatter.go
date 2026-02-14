@@ -42,8 +42,15 @@ func New(mode string) Formatter {
 	}
 }
 
+// NewJSON creates a JSON formatter with optional results-only mode
+func NewJSON(resultsOnly bool) Formatter {
+	return &jsonFormatter{resultsOnly: resultsOnly}
+}
+
 // jsonFormatter outputs JSON to stdout
-type jsonFormatter struct{}
+type jsonFormatter struct {
+	resultsOnly bool
+}
 
 func (f *jsonFormatter) Print(data any) error {
 	enc := json.NewEncoder(os.Stdout)
@@ -52,7 +59,28 @@ func (f *jsonFormatter) Print(data any) error {
 }
 
 func (f *jsonFormatter) PrintList(items any, columns []Column) error {
-	return f.Print(items)
+	// If results-only mode, print raw array
+	if f.resultsOnly {
+		return f.Print(items)
+	}
+
+	// Otherwise, wrap in envelope with metadata
+	v := reflect.ValueOf(items)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	count := 0
+	if v.Kind() == reflect.Slice {
+		count = v.Len()
+	}
+
+	envelope := map[string]any{
+		"data":  items,
+		"count": count,
+	}
+
+	return f.Print(envelope)
 }
 
 func (f *jsonFormatter) PrintError(err error) {

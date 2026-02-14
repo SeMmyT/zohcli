@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/alecthomas/kong"
 	"github.com/semmy-space/zoh/internal/config"
 	"github.com/semmy-space/zoh/internal/output"
@@ -25,6 +27,14 @@ type CLI struct {
 // BeforeApply hook runs before any command execution
 // It loads config, resolves region, creates formatter, and binds dependencies
 func (c *CLI) BeforeApply(ctx *kong.Context) error {
+	// Validate flag combinations
+	if c.Force && c.DryRun {
+		return fmt.Errorf("cannot use --force with --dry-run")
+	}
+	if c.ResultsOnly && c.ResolvedOutput() != "json" {
+		return fmt.Errorf("--results-only requires --output=json")
+	}
+
 	// Load config from XDG path (returns defaults if missing)
 	cfg, err := config.Load()
 	if err != nil {
@@ -42,8 +52,16 @@ func (c *CLI) BeforeApply(ctx *kong.Context) error {
 	cfg.Region = region
 
 	// Create output formatter
-	formatter := &FormatterProvider{
-		Formatter: output.New(c.ResolvedOutput()),
+	var formatter *FormatterProvider
+	outputMode := c.ResolvedOutput()
+	if outputMode == "json" {
+		formatter = &FormatterProvider{
+			Formatter: output.NewJSON(c.ResultsOnly),
+		}
+	} else {
+		formatter = &FormatterProvider{
+			Formatter: output.New(outputMode),
+		}
 	}
 
 	// Bind dependencies to kong context
