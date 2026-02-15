@@ -77,10 +77,18 @@ func startCallbackServer(ctx context.Context, port int) (resultChan chan callbac
 		w.Header().Set("Content-Type", "text/html")
 		fmt.Fprintf(w, `<!DOCTYPE html>
 <html>
-<head><title>Authentication Successful</title></head>
+<head><title>zoh — Authenticating</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 480px; margin: 80px auto; text-align: center; color: #333; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #ddd; border-top-color: #333; border-radius: 50%%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #status { margin-top: 24px; font-size: 1.1em; }
+</style>
+</head>
 <body>
-<h1>Authentication Successful!</h1>
-<p>You can close this window and return to the terminal.</p>
+<h1>zoh</h1>
+<div id="status"><span class="spinner"></span> Exchanging token...</div>
+<p style="color:#888; margin-top:32px;">Check your terminal for the result.</p>
 </body>
 </html>`)
 	})

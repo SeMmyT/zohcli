@@ -28,8 +28,9 @@ func newOAuth2Config(cfg *config.Config, redirectURL string) (*oauth2.Config, er
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  region.AccountsServer + "/oauth/v2/auth",
-			TokenURL: region.AccountsServer + "/oauth/v2/token",
+			AuthURL:   region.AccountsServer + "/oauth/v2/auth",
+			TokenURL:  region.AccountsServer + "/oauth/v2/token",
+			AuthStyle: oauth2.AuthStyleInParams,
 		},
 		RedirectURL: redirectURL,
 		// Note: Scopes are NOT set here because Zoho uses comma-separated scopes,
