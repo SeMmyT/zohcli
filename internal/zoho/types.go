@@ -1,5 +1,7 @@
 package zoho
 
+import "encoding/json"
+
 // AccountsResponse is the response from GET /api/accounts
 type AccountsResponse struct {
 	Status struct {
@@ -255,7 +257,7 @@ type DomainModeRequest struct {
 // AuditLog represents an admin action audit log entry
 type AuditLog struct {
 	SubCategory   string                 `json:"subCategory"`
-	Data          map[string]interface{} `json:"data"`
+	Data          json.RawMessage `json:"data"`
 	Type          string                 `json:"type"`
 	RequestTime   int64                  `json:"requestTime"` // Unix milliseconds
 	PerformedBy   string                 `json:"performedBy"`

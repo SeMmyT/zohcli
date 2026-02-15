@@ -114,8 +114,8 @@ type MessageMetadataResponse struct {
 
 // MessageContent represents message body content
 type MessageContent struct {
-	MessageID string `json:"messageId"`
-	Content   string `json:"content"` // HTML body
+	MessageID json.Number `json:"messageId"`
+	Content   string      `json:"content"` // HTML body
 }
 
 // MessageContentResponse is the response for message content
