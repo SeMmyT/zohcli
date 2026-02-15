@@ -1,7 +1,7 @@
 version: 2
 
 builds:
-  - binary: zoh
+  - binary: zohcli
     main: .
     ldflags:
       - -s -w -X main.version={{.Version}}
@@ -28,7 +28,7 @@ checksum:
 
 changelog:
   sort: asc
-  use: github
+  use: git
   filters:
     exclude:
       - "^docs:"
@@ -49,4 +49,4 @@ changelog:
 release:
   github:
     owner: SeMmyT
-    name: zoh
+    name: zohcli
