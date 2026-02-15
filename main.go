@@ -7,6 +7,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/posener/complete"
 	"github.com/SeMmyT/zoh/internal/cli"
+	"github.com/SeMmyT/zoh/internal/config"
 	"github.com/SeMmyT/zoh/internal/output"
 	"github.com/willabides/kongplete"
 )
@@ -34,6 +35,15 @@ func main() {
 	kongplete.Complete(parser,
 		kongplete.WithPredictor("file", complete.PredictFiles("*")),
 	)
+
+	// Show setup hint if no args and not configured
+	if len(os.Args) <= 1 {
+		cfg, _ := config.Load()
+		if cfg != nil && cli.NeedsSetup(cfg) {
+			cli.PrintSetupHint()
+			os.Exit(0)
+		}
+	}
 
 	// Parse and run
 	ctx, err := parser.Parse(os.Args[1:])

@@ -17,6 +17,7 @@ type FormatterProvider struct {
 type CLI struct {
 	Globals
 
+	Setup   SetupCmd   `cmd:"" help:"Interactive first-time setup wizard"`
 	Auth    AuthCmd    `cmd:"" help:"Authentication commands"`
 	Config  ConfigCmd  `cmd:"" help:"Configuration commands"`
 	Admin   AdminCmd   `cmd:"" help:"Admin operations"`
