@@ -23,6 +23,7 @@ type MailService interface {
 
 	// Send operations
 	SendEmail(ctx context.Context, req *SendEmailRequest) error
+	SaveDraft(ctx context.Context, req *SendEmailRequest) error
 	ReplyToEmail(ctx context.Context, messageID string, req *SendEmailRequest) error
 	ReplyAllToEmail(ctx context.Context, messageID string, req *SendEmailRequest) error
 	ForwardEmail(ctx context.Context, messageID string, req *SendEmailRequest) error

@@ -154,6 +154,7 @@ type SendEmailRequest struct {
 	Content     string                 `json:"content"`
 	MailFormat  string                 `json:"mailFormat,omitempty"` // "html" or "plaintext"
 	Action      string                 `json:"action,omitempty"`     // "reply", "replyall", "forward"
+	Mode        string                 `json:"mode,omitempty"`       // "draft" to save as draft instead of sending
 	Attachments []AttachmentReference `json:"attachments,omitempty"`
 }
 
