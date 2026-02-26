@@ -68,6 +68,14 @@ func (mc *MailClient) SendEmail(ctx context.Context, req *SendEmailRequest) erro
 // SaveDraft saves a message as a draft instead of sending it
 func (mc *MailClient) SaveDraft(ctx context.Context, req *SendEmailRequest) error {
 	req.Mode = "draft"
+	// Zoho requires fromAddress for drafts; auto-fill from account if not set
+	if req.FromAddress == "" {
+		details, err := mc.GetAccountDetails(ctx)
+		if err != nil {
+			return fmt.Errorf("get account details for fromAddress: %w", err)
+		}
+		req.FromAddress = details.PrimaryEmailAddress
+	}
 	path := fmt.Sprintf("/api/accounts/%s/messages", mc.accountID)
 	return mc.sendEmailRequest(ctx, path, req)
 }
