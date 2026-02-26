@@ -65,6 +65,13 @@ func (mc *MailClient) SendEmail(ctx context.Context, req *SendEmailRequest) erro
 	return mc.sendEmailRequest(ctx, path, req)
 }
 
+// SaveDraft saves a message as a draft instead of sending it
+func (mc *MailClient) SaveDraft(ctx context.Context, req *SendEmailRequest) error {
+	req.Mode = "draft"
+	path := fmt.Sprintf("/api/accounts/%s/messages", mc.accountID)
+	return mc.sendEmailRequest(ctx, path, req)
+}
+
 // ReplyToEmail replies to a message
 func (mc *MailClient) ReplyToEmail(ctx context.Context, messageID string, req *SendEmailRequest) error {
 	req.Action = "reply"
