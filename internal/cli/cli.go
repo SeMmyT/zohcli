@@ -103,10 +103,11 @@ type ConfigCmd struct {
 
 // AdminCmd holds admin subcommands
 type AdminCmd struct {
-	Users   AdminUsersCmd   `cmd:"" help:"Manage organization users"`
-	Groups  AdminGroupsCmd  `cmd:"" help:"Manage organization groups"`
-	Domains AdminDomainsCmd `cmd:"" help:"Manage organization domains"`
-	Audit   AdminAuditCmd   `cmd:"" help:"View audit logs and security information"`
+	Users    AdminUsersCmd    `cmd:"" help:"Manage organization users"`
+	Groups   AdminGroupsCmd   `cmd:"" help:"Manage organization groups"`
+	Domains  AdminDomainsCmd  `cmd:"" help:"Manage organization domains"`
+	Audit    AdminAuditCmd    `cmd:"" help:"View audit logs and security information"`
+	Antispam AdminAntispamCmd `cmd:"" help:"Manage antispam policy settings"`
 }
 
 // AdminUsersCmd holds user subcommands
