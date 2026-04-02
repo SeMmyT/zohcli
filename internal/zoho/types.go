@@ -332,6 +332,12 @@ type SMTPLogResponse struct {
 	} `json:"data"`
 }
 
+// AliasRequest is the request body for adding/removing email aliases
+type AliasRequest struct {
+	Mode       string   `json:"mode"`       // "addEmailAlias" or "removeEmailAlias"
+	EmailAlias []string `json:"emailAlias"`
+}
+
 // APIError represents an error response from the Zoho API
 type APIError struct {
 	Status struct {

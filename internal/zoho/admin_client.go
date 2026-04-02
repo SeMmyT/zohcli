@@ -576,6 +576,60 @@ func (ac *AdminClient) RemoveGroupMembers(ctx context.Context, zgid int64, membe
 	return nil
 }
 
+// AddAlias adds email aliases to a user account
+func (ac *AdminClient) AddAlias(ctx context.Context, accountID string, aliases []string) error {
+	path := fmt.Sprintf("/api/organization/%d/accounts/%s", ac.zoid, accountID)
+
+	req := AliasRequest{
+		Mode:       "addEmailAlias",
+		EmailAlias: aliases,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ac.parseErrorResponse(resp)
+	}
+
+	return nil
+}
+
+// RemoveAlias removes email aliases from a user account
+func (ac *AdminClient) RemoveAlias(ctx context.Context, accountID string, aliases []string) error {
+	path := fmt.Sprintf("/api/organization/%d/accounts/%s", ac.zoid, accountID)
+
+	req := AliasRequest{
+		Mode:       "removeEmailAlias",
+		EmailAlias: aliases,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	resp, err := ac.client.DoMail(ctx, http.MethodPut, path, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ac.parseErrorResponse(resp)
+	}
+
+	return nil
+}
+
 // ListDomains fetches all domains in the organization
 func (ac *AdminClient) ListDomains(ctx context.Context) ([]Domain, error) {
 	path := fmt.Sprintf("/api/organization/%d/domains", ac.zoid)

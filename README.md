@@ -11,7 +11,7 @@ zoh send --to team@company.com --subject "Deploy done" --body "v2.1 is live"
 ## Features
 
 - **Full Zoho Mail API** — folders, labels, messages, search, threads, attachments, send/reply/forward
-- **Full Zoho Admin API** — users, groups, domains, audit logs, login history, SMTP logs
+- **Full Zoho Admin API** — users, groups, domains, email alias management, audit logs, login history, SMTP logs
 - **Mail administration** — spam filters, retention policies, delivery logs
 - **8 data centers** — `us` `eu` `in` `au` `jp` `ca` `sa` `uk`
 - **Multiple output formats** — JSON (scriptable), plain (pipeable), rich (interactive tables)
@@ -19,6 +19,21 @@ zoh send --to team@company.com --subject "Deploy done" --body "v2.1 is live"
 - **Shell completion** — bash, zsh, fish
 - **Secure credential storage** — OS keyring or encrypted file (auto-detected for WSL/headless)
 - **Agent-friendly** — stable exit codes, `--results-only` JSON, `zoh schema` introspection
+
+## Architecture
+
+```mermaid
+graph LR
+    CLI[zoh CLI] --> SP[Service Provider]
+    SP --> AC[Admin Client]
+    SP --> MC[Mail Client]
+    AC --> API1[Zoho Mail Admin API]
+    MC --> API2[Zoho Mail API]
+    SP --> Auth[OAuth2 + Token Cache]
+    Auth --> KR[OS Keyring / Encrypted File]
+    API1 --> DC[8 Data Centers]
+    API2 --> DC
+```
 
 ## Install
 
@@ -77,6 +92,11 @@ zoh admin groups members add eng@example.com alice@example.com bob@example.com
 zoh admin domains list
 zoh admin domains add example.com
 zoh admin domains verify example.com --method txt
+
+# Aliases
+zoh admin users aliases list user@example.com
+zoh admin users aliases add user@example.com alias1@example.com alias2@example.com
+zoh admin users aliases remove user@example.com old-alias@example.com --force
 
 # Audit
 zoh admin audit logs --from 2025-01-01 --to 2025-01-31

@@ -119,6 +119,14 @@ type AdminUsersCmd struct {
 	Activate   AdminUsersActivateCmd   `cmd:"" help:"Activate a user account"`
 	Deactivate AdminUsersDeactivateCmd `cmd:"" help:"Deactivate a user account"`
 	Delete     AdminUsersDeleteCmd     `cmd:"" help:"Delete a user permanently"`
+	Aliases    AdminAliasesCmd         `cmd:"" help:"Manage user email aliases"`
+}
+
+// AdminAliasesCmd holds alias subcommands
+type AdminAliasesCmd struct {
+	List   AdminAliasesListCmd   `cmd:"" help:"List user email aliases"`
+	Add    AdminAliasesAddCmd    `cmd:"" help:"Add email alias(es) to a user"`
+	Remove AdminAliasesRemoveCmd `cmd:"" help:"Remove email alias(es) from a user"`
 }
 
 // AdminGroupsCmd holds group subcommands

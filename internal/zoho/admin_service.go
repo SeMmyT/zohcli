@@ -37,6 +37,9 @@ type AdminService interface {
 	GetLoginHistory(ctx context.Context, mode string, startTime, endTime time.Time, batchSize int) ([]LoginHistoryEntry, error)
 	GetSMTPLogs(ctx context.Context, startTime, endTime time.Time, searchCriteria, searchKey string, limit int) ([]SMTPLogEntry, error)
 
+	AddAlias(ctx context.Context, accountID string, aliases []string) error
+	RemoveAlias(ctx context.Context, accountID string, aliases []string) error
+
 	GetAntispamOption(ctx context.Context, check string) (string, error)
 	SetAntispamOption(ctx context.Context, check, option string) error
 }
