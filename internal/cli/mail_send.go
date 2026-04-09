@@ -19,13 +19,18 @@ type MailSendComposeCmd struct {
 	Body    string   `help:"Email body content" required:""`
 	HTML    bool     `help:"Send as HTML (default: plain text)" name:"html"`
 	Attach  []string `help:"File path(s) to attach (repeatable)" name:"attach" predictor:"file"`
+	Draft   bool     `help:"Save as draft instead of sending" name:"draft"`
 }
 
 // Run executes the compose command
 func (cmd *MailSendComposeCmd) Run(sp *ServiceProvider, globals *Globals) error {
 	// Dry-run preview
 	if globals.DryRun {
-		fmt.Fprintf(os.Stderr, "[DRY RUN] Would send email:\n")
+		action := "send"
+		if cmd.Draft {
+			action = "save as draft"
+		}
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would %s email:\n", action)
 		fmt.Fprintf(os.Stderr, "  To: %s\n", cmd.To)
 		if cmd.Cc != "" {
 			fmt.Fprintf(os.Stderr, "  Cc: %s\n", cmd.Cc)
@@ -77,17 +82,26 @@ func (cmd *MailSendComposeCmd) Run(sp *ServiceProvider, globals *Globals) error 
 		req.MailFormat = "plaintext"
 	}
 
-	// Send email
-	err = mailClient.SendEmail(ctx, req)
-	if err != nil {
-		return &output.CLIError{
-			Message:  fmt.Sprintf("Failed to send email: %v", err),
-			ExitCode: output.ExitAPIError,
+	// Send or save as draft
+	if cmd.Draft {
+		err = mailClient.SaveDraft(ctx, req)
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to save draft: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
 		}
+		fmt.Fprintf(os.Stderr, "Draft saved\n")
+	} else {
+		err = mailClient.SendEmail(ctx, req)
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to send email: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
+		}
+		fmt.Fprintf(os.Stderr, "Email sent to %s\n", cmd.To)
 	}
-
-	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "Email sent to %s\n", cmd.To)
 	return nil
 }
 
@@ -99,13 +113,18 @@ type MailSendReplyCmd struct {
 	HTML      bool     `help:"Send as HTML (default: plain text)" name:"html"`
 	Attach    []string `help:"File path(s) to attach (repeatable)" name:"attach" predictor:"file"`
 	All       bool     `help:"Reply to all recipients" name:"all"`
+	Draft     bool     `help:"Save as draft instead of sending" name:"draft"`
 }
 
 // Run executes the reply command
 func (cmd *MailSendReplyCmd) Run(sp *ServiceProvider, globals *Globals) error {
 	// Dry-run preview
 	if globals.DryRun {
-		fmt.Fprintf(os.Stderr, "[DRY RUN] Would reply to message %s (reply-all=%v)\n", cmd.MessageID, cmd.All)
+		action := "reply to"
+		if cmd.Draft {
+			action = "save reply draft for"
+		}
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would %s message %s (reply-all=%v)\n", action, cmd.MessageID, cmd.All)
 		return nil
 	}
 
@@ -171,25 +190,33 @@ func (cmd *MailSendReplyCmd) Run(sp *ServiceProvider, globals *Globals) error {
 		req.CcAddress = strings.Join(ccList, ",")
 	}
 
-	// Send reply
-	if cmd.All {
-		err = mailClient.ReplyAllToEmail(ctx, cmd.MessageID, req)
-	} else {
-		err = mailClient.ReplyToEmail(ctx, cmd.MessageID, req)
-	}
-
-	if err != nil {
-		return &output.CLIError{
-			Message:  fmt.Sprintf("Failed to send reply: %v", err),
-			ExitCode: output.ExitAPIError,
+	// Send reply or save as draft
+	if cmd.Draft {
+		err = mailClient.SaveDraft(ctx, req)
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to save reply draft: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
 		}
-	}
-
-	// Print confirmation to stderr
-	if cmd.All {
-		fmt.Fprintf(os.Stderr, "Reply sent to all recipients\n")
+		fmt.Fprintf(os.Stderr, "Reply draft saved\n")
 	} else {
-		fmt.Fprintf(os.Stderr, "Reply sent to %s\n", metadata.FromAddress)
+		if cmd.All {
+			err = mailClient.ReplyAllToEmail(ctx, cmd.MessageID, req)
+		} else {
+			err = mailClient.ReplyToEmail(ctx, cmd.MessageID, req)
+		}
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to send reply: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
+		}
+		if cmd.All {
+			fmt.Fprintf(os.Stderr, "Reply sent to all recipients\n")
+		} else {
+			fmt.Fprintf(os.Stderr, "Reply sent to %s\n", metadata.FromAddress)
+		}
 	}
 	return nil
 }
@@ -202,13 +229,18 @@ type MailSendForwardCmd struct {
 	Body      string   `help:"Additional message body" default:""`
 	HTML      bool     `help:"Send as HTML (default: plain text)" name:"html"`
 	Attach    []string `help:"File path(s) to attach (repeatable)" name:"attach" predictor:"file"`
+	Draft     bool     `help:"Save as draft instead of sending" name:"draft"`
 }
 
 // Run executes the forward command
 func (cmd *MailSendForwardCmd) Run(sp *ServiceProvider, globals *Globals) error {
 	// Dry-run preview
 	if globals.DryRun {
-		fmt.Fprintf(os.Stderr, "[DRY RUN] Would forward message %s to %s\n", cmd.MessageID, cmd.To)
+		action := "forward"
+		if cmd.Draft {
+			action = "save forward draft of"
+		}
+		fmt.Fprintf(os.Stderr, "[DRY RUN] Would %s message %s to %s\n", action, cmd.MessageID, cmd.To)
 		return nil
 	}
 
@@ -262,17 +294,26 @@ func (cmd *MailSendForwardCmd) Run(sp *ServiceProvider, globals *Globals) error 
 		req.MailFormat = "plaintext"
 	}
 
-	// Send forward
-	err = mailClient.ForwardEmail(ctx, cmd.MessageID, req)
-	if err != nil {
-		return &output.CLIError{
-			Message:  fmt.Sprintf("Failed to forward message: %v", err),
-			ExitCode: output.ExitAPIError,
+	// Forward or save as draft
+	if cmd.Draft {
+		err = mailClient.SaveDraft(ctx, req)
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to save forward draft: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
 		}
+		fmt.Fprintf(os.Stderr, "Forward draft saved\n")
+	} else {
+		err = mailClient.ForwardEmail(ctx, cmd.MessageID, req)
+		if err != nil {
+			return &output.CLIError{
+				Message:  fmt.Sprintf("Failed to forward message: %v", err),
+				ExitCode: output.ExitAPIError,
+			}
+		}
+		fmt.Fprintf(os.Stderr, "Message forwarded to %s\n", cmd.To)
 	}
-
-	// Print confirmation to stderr
-	fmt.Fprintf(os.Stderr, "Message forwarded to %s\n", cmd.To)
 	return nil
 }
 
